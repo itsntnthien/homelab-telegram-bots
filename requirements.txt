@@ -1,0 +1,4 @@
+Pillow==12.3.0
+tzdata==2026.2
+# Imported by the preserved regression/research fixtures.
+numpy==2.5.0

@@ -1,0 +1,17 @@
+[Unit]
+Description=Homelab XAUUSD signal bot (shadow by default)
+After=network-online.target homelab-market.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/homelab-telegram-bots/apps/trading-bot
+EnvironmentFile=%h/.config/homelab-bots/trading.env
+ExecStart=%h/homelab-telegram-bots/.venv/bin/python launch.py
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

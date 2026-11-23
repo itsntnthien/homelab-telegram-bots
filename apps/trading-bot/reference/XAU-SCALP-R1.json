@@ -1,0 +1,17 @@
+{
+  "attachment": "Pasted text.txt",
+  "core_version": 1603001,
+  "config_fingerprint": 8211403,
+  "line_count": 3177,
+  "sha256": "d926193f7432b5fed6cfb70ed556c9df096c32b1ad8a6b506fbc479d33d856c6",
+  "overrides": {
+    "minimum_rr_milli": 1250,
+    "spread_price": 0.0
+  },
+  "defaults": {
+    "execute_confirmed_next_bar": true,
+    "live_shadow": false,
+    "trend_dca": false,
+    "two_stage_exit": false
+  }
+}

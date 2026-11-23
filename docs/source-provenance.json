@@ -1,0 +1,341 @@
+{
+  "snapshot_date": "2026-11-23",
+  "description": "Allowlisted source files copied from the configured Linux services; original SHA-256 values are recorded before portability edits. No credentials or runtime databases copied.",
+  "files": {
+    "apps/trading-bot/acceptance_run.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "b8846ff983ba19e01b007348aa800bbc666c3d910146bf5be7cd4de470fb4415",
+      "normalized_source_sha256": "b8846ff983ba19e01b007348aa800bbc666c3d910146bf5be7cd4de470fb4415"
+    },
+    "apps/trading-bot/bot.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "5f73b5684ec5d95c2d1cea1ab95159f5263494e2baedb79cdcab3a63320ed1c2",
+      "normalized_source_sha256": "32b6e13d343ed9b7de24b6aaceedc64224e51a3e280ddd55fa45e4ab8aba01d2"
+    },
+    "apps/trading-bot/delivery.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "d122efc13c4c289d75f2a70d9d69742e98c4997279285f5935004d619573b73a",
+      "normalized_source_sha256": "e1dc376df3787c1dd90befb4434addbdfbb66913ba29377543fe5575a48a1896"
+    },
+    "apps/trading-bot/ensemble_research.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "9edbc5ffcb62855375863173aed78d2ed5bd9bce423e56b017dc271b8bcc1918",
+      "normalized_source_sha256": "9edbc5ffcb62855375863173aed78d2ed5bd9bce423e56b017dc271b8bcc1918"
+    },
+    "apps/trading-bot/exness_collector.py": {
+      "origin": "configured-market-collector",
+      "source_sha256": "68e8d091d65ac1db9afb7fcdde941af9b44a7e6f2f3053af37f625367fdc252c",
+      "normalized_source_sha256": "1fc8d9d20ea7585e0575c3202e461d428344618a46ec033c2a23e4dd4570957d"
+    },
+    "apps/trading-bot/hybrid_research.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "2cfbe542ef0ffd4b34394559c9973a4a9bcf88d540fc66a2339e5adadaa835aa",
+      "normalized_source_sha256": "6cbc455c713b3d0359458b65bb1b3acb7c179361c3834b2201a757dde5d37ef0"
+    },
+    "apps/trading-bot/intraday_execution.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "0b58beae593c73220ae80d0f1840674200b24871cb08fdf63dd9839e1c866247",
+      "normalized_source_sha256": "0b58beae593c73220ae80d0f1840674200b24871cb08fdf63dd9839e1c866247"
+    },
+    "apps/trading-bot/intraday_live.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "f484d9df7a6efd5c7049472b4df6c16ca9117830132dd60abe43c7ac8ee740a9",
+      "normalized_source_sha256": "0237b8cacdf7dd4f9120a98be7bca8d9be1a735c6b4a8a993d161f7e1818a3da"
+    },
+    "apps/trading-bot/intraday_research.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "ce75356e2e9339243329ed2ebd217d6878740a35f806905fa5a178048351e4ee",
+      "normalized_source_sha256": "ce75356e2e9339243329ed2ebd217d6878740a35f806905fa5a178048351e4ee"
+    },
+    "apps/trading-bot/latency.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "4f26100fd2fc0e56bce7129aa806689b4140315d1701902ce48123f9d72ebd7e",
+      "normalized_source_sha256": "4f26100fd2fc0e56bce7129aa806689b4140315d1701902ce48123f9d72ebd7e"
+    },
+    "apps/trading-bot/market_migration.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "4b45f92b75a77e637453bbc3a36bd4c6f045c4f548db7836f317244d70122eb7",
+      "normalized_source_sha256": "4b45f92b75a77e637453bbc3a36bd4c6f045c4f548db7836f317244d70122eb7"
+    },
+    "apps/trading-bot/market_quality.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "a4c0a0ca6a827a42a1d9597d6055eaf9eb234e695118b9878bd56e633f37f5e8",
+      "normalized_source_sha256": "ce65c0038fa100cecb6f7e7fc27ba21cf0247ecd493e750096f84ad8baefd20e"
+    },
+    "apps/trading-bot/migrate_combined_state.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "64495b13896dd99a3d41a2c5082eb0a5c0c90eb1c1f334f0b408b6c17efdb948",
+      "normalized_source_sha256": "64495b13896dd99a3d41a2c5082eb0a5c0c90eb1c1f334f0b408b6c17efdb948"
+    },
+    "apps/trading-bot/migrate_frequency_config.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "bd7bce482668b8711f3a2b75132605b47516caeef92259e58ef420cc76749bc9",
+      "normalized_source_sha256": "a41f64f96f3592d2d83a6f348f5e5f0796f2698f3f90e29383162293e133441f"
+    },
+    "apps/trading-bot/news_worker.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "7d22562b0bd8e0d16671e0816ee745b36d997cadbf18d4aa30404a2d954b3f01",
+      "normalized_source_sha256": "7d22562b0bd8e0d16671e0816ee745b36d997cadbf18d4aa30404a2d954b3f01"
+    },
+    "apps/trading-bot/pine_acceptance.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "d631c733d1617cb9666ae78de7a9ea44d5875d5a39443355b16d6cde08171d96",
+      "normalized_source_sha256": "57d9440cf42b1ac0136fd2df330e9eedef042a5d7ca5c519ee667daed767f7fe"
+    },
+    "apps/trading-bot/pine_config.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "00649a97967a3cf33f31275839a2a475e81ae500e4147fc87533a121fc8132d1",
+      "normalized_source_sha256": "bb24ab17d7e5e569a673f1b678ca6963bdb1b29af2da5b3eea08e5fad289a69a"
+    },
+    "apps/trading-bot/pine_engine.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "2c1610b90b8904905c2af3b4b6ac4b44943c1f8400bda5e484ba6d8e5e0f4013",
+      "normalized_source_sha256": "1edf5c460037e5fa6db7102454ecdb5c8a22a9f0275216231a51a427c60df6c1"
+    },
+    "apps/trading-bot/pine_execution.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "c54cf602a5ece3baa1e69b895aeec0b9d92e6ec410c41bead6e96cda92da762a",
+      "normalized_source_sha256": "ab1db24dd4565cd9590762791f75f86d955a3b80404a5b78c79d78f78a2b0f16"
+    },
+    "apps/trading-bot/pine_parity.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "b872a1e13ffb6229a139fa62ed323eef5eb3bb2d57fa62f4ab934b9b801eadd6",
+      "normalized_source_sha256": "25bd9a4c6931313ebc17553c29f7440603be3709cc03dae15fcfa195c36e3311"
+    },
+    "apps/trading-bot/pine_runtime.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "e23a5af902c06cc3185cf61bfa95da0acdba4fdee8db0b1cce45cee85ecd8d8b",
+      "normalized_source_sha256": "61cfd995b1e94ca8702e7af2a25993352528dcbd92c482ef72f229e539f5745d"
+    },
+    "apps/trading-bot/release1_context.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "1d615cf06e17bf5281ad86ee8dbdc451d82fc1ecba3e55b8ec94d5441871d335",
+      "normalized_source_sha256": "1d615cf06e17bf5281ad86ee8dbdc451d82fc1ecba3e55b8ec94d5441871d335"
+    },
+    "apps/trading-bot/release1_engine.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "1e235b8c2aade19b9b32e5c43aea0a23f455981e02d6de56f6d6f4640f422132",
+      "normalized_source_sha256": "1e235b8c2aade19b9b32e5c43aea0a23f455981e02d6de56f6d6f4640f422132"
+    },
+    "apps/trading-bot/release1_execution.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "a9374877bacb87c9df64b39f48baf87550c1122beba6698aaf38b885e5ba28dd",
+      "normalized_source_sha256": "a9374877bacb87c9df64b39f48baf87550c1122beba6698aaf38b885e5ba28dd"
+    },
+    "apps/trading-bot/setup_view.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "3d4a24e739b301b215018be002a3db4fd4fa6081b934502e027f351a96457286",
+      "normalized_source_sha256": "3dde1a0cd42b83775ec77abcae1ef1ed913f6b7cb59511e70e3db36aeb13fe78"
+    },
+    "apps/trading-bot/signal_engine.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "d06b00f9854b605d31b49b39c696d0ae7bead009a8fc3459f8016d419ed41836",
+      "normalized_source_sha256": "02f4fb67183174c287ce0e41d391560d34c5fba9ea44c527b6173e63e8bef407"
+    },
+    "apps/trading-bot/smc_chart.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "bb366802b0a4864cb7877274dd6eec55d56a0a0575b120137b5eb6a1a86aa124",
+      "normalized_source_sha256": "5365c5292166262416329c0579b9efcdc700e187d3eadc89876156105c699029"
+    },
+    "apps/trading-bot/subtype_research.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "31ece85eaeaebd8399f4da0e33eb75b5bce5afb3406410ee5146d8c63458fd94",
+      "normalized_source_sha256": "31ece85eaeaebd8399f4da0e33eb75b5bce5afb3406410ee5146d8c63458fd94"
+    },
+    "apps/trading-bot/telegram_views.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "b3970f603995f70e9508dd1ab41ef2e9238fc827020e9bcb9965d49daadbfaa7",
+      "normalized_source_sha256": "480402c33cd594f9780bdaaa5921417a55d39bfc2f8f3599ad4566b61d30bddd"
+    },
+    "apps/trading-bot/test_bot.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "227394c4ad52b7e1531afed82d6fb22e74d011bb492afef4a71d5913c45c33d2",
+      "normalized_source_sha256": "227394c4ad52b7e1531afed82d6fb22e74d011bb492afef4a71d5913c45c33d2"
+    },
+    "apps/trading-bot/test_broker_holidays.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "048a1dd0b74b1f53a7ba3ad4d5cb17afc0cb8469d6cfbc556c4e1351e8ed9760",
+      "normalized_source_sha256": "048a1dd0b74b1f53a7ba3ad4d5cb17afc0cb8469d6cfbc556c4e1351e8ed9760"
+    },
+    "apps/trading-bot/test_combined_live.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "01ff80b1c195ab06782f3efe5dc9479caae3976641ccf5fcc7c1e4689977d7df",
+      "normalized_source_sha256": "06a2f622f2c2fde106daf896267be2065ad90688a19d400e77794b884e5fa74e"
+    },
+    "apps/trading-bot/test_delivery_completion.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "14a89ee75ac4f503de0e58de0bffeba15a30431a3eb6bb1595acb8330ae1834e",
+      "normalized_source_sha256": "f44e89e03cabbdfed89a2216a31074d14667b7669e3d53f42cb976278be07c0c"
+    },
+    "apps/trading-bot/test_ensemble_research.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "234ea6bd986ac03a6f059a2c39011180b88c63770297a6213bbae9a821b4890e",
+      "normalized_source_sha256": "234ea6bd986ac03a6f059a2c39011180b88c63770297a6213bbae9a821b4890e"
+    },
+    "apps/trading-bot/test_exness_collector.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "80cf9bcb93c6a0551a2a57ff5cf2de010c5ca2b061733a7bfb7a18f2e8cf0105",
+      "normalized_source_sha256": "451e9a19ae1c1e416e87dfadca13a9ed7a54822ae743a71d3e42d09aec8dadaa"
+    },
+    "apps/trading-bot/test_frequency_adjustment.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "d1e5da79b0d782768bf521b7076fd805d6b578aba91dd39f17e7667fac1aef6e",
+      "normalized_source_sha256": "db196807588cf6200c34c8411dfde24fa8abeb1183ee72f540601b68d85968d9"
+    },
+    "apps/trading-bot/test_hybrid_research.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "96a01ae746be634b49d3247cb2895d29a9c85d8c72344b4c1c42a29b2c00edc8",
+      "normalized_source_sha256": "96a01ae746be634b49d3247cb2895d29a9c85d8c72344b4c1c42a29b2c00edc8"
+    },
+    "apps/trading-bot/test_intraday_live.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "c44274dda25b31f06b3c8b5878b1b537462bb1b12e808df57b4773c459f863f8",
+      "normalized_source_sha256": "5964cf9b176f989520d249433718951de6c2b5d419b35ebc314d5b2eabe59eab"
+    },
+    "apps/trading-bot/test_intraday_research.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "100070011f7ab8202b4df0616d6575d6609b5abf9ea35a5d47b47b6698027950",
+      "normalized_source_sha256": "100070011f7ab8202b4df0616d6575d6609b5abf9ea35a5d47b47b6698027950"
+    },
+    "apps/trading-bot/test_latency.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "c25d3e1cc78d7bee1a7ac925ecfb1e507ade4978a1fdd00218c44cf062aefd09",
+      "normalized_source_sha256": "c25d3e1cc78d7bee1a7ac925ecfb1e507ade4978a1fdd00218c44cf062aefd09"
+    },
+    "apps/trading-bot/test_market_migration.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "e9493b40d183e689024e1caf567e45fa920e7cf33d02938c4339354c2b23d67b",
+      "normalized_source_sha256": "e9493b40d183e689024e1caf567e45fa920e7cf33d02938c4339354c2b23d67b"
+    },
+    "apps/trading-bot/test_market_quality.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "a991a5f4f9ba6fe748edee3fba530a3f7d9b8501298955a3a078d7af3be46b83",
+      "normalized_source_sha256": "9853f2cde83527d64c3773634239941102b4b8e36064899cdc1be85c17b55a63"
+    },
+    "apps/trading-bot/test_news_worker.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "6ad4237ea89c26ea31717529b83ad105f1e5d9a57def50e57993ae3ab0189230",
+      "normalized_source_sha256": "6ad4237ea89c26ea31717529b83ad105f1e5d9a57def50e57993ae3ab0189230"
+    },
+    "apps/trading-bot/test_pine_contract.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "925d15aee3805720c6cb1cadc6e37342e89c045e8c2bd728e1e12475b73af50d",
+      "normalized_source_sha256": "16cd45b1009947f54ba6eb951688cbffdc39fd3ec20ab82069c86ca8c9f9a1ef"
+    },
+    "apps/trading-bot/test_release1_context.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "2a11a865c1b8c8a279829eaafa16421125844e8dc888bba7ce7f6b5157e312e4",
+      "normalized_source_sha256": "2a11a865c1b8c8a279829eaafa16421125844e8dc888bba7ce7f6b5157e312e4"
+    },
+    "apps/trading-bot/test_release1_engine.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "bd0cd3a3009d1065d695db98b52db945c05363cdcbdd7817d30125b22a2e2191",
+      "normalized_source_sha256": "bd0cd3a3009d1065d695db98b52db945c05363cdcbdd7817d30125b22a2e2191"
+    },
+    "apps/trading-bot/test_release1_execution.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "504dacb80fcb5eebfcf2c374902882111cf2dab03450cde2180484ca8a43f3bd",
+      "normalized_source_sha256": "504dacb80fcb5eebfcf2c374902882111cf2dab03450cde2180484ca8a43f3bd"
+    },
+    "apps/trading-bot/test_scalp_live.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "eba2aaa04883276678b34a30bce1c982ca7da4c5324f8e07f2f5a35bf3c3544d",
+      "normalized_source_sha256": "f6b39325ddd762786b589364af4ac32bfa4ec963fac7790ad5750ff081441bf0"
+    },
+    "apps/trading-bot/test_setup_view.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "c37b9413e2824d6572d41c7858dd677bc074c6b11019deae31baf8c990b3c049",
+      "normalized_source_sha256": "aecebf7ea189dd02da092323a1b461dbcd7591f16c5b0822b4a9dc0120fbe02b"
+    },
+    "apps/trading-bot/test_signal_engine.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "402797d03bc9379259fbf19046ed66bde8262cb80f45892314474006f9aa3d9c",
+      "normalized_source_sha256": "402797d03bc9379259fbf19046ed66bde8262cb80f45892314474006f9aa3d9c"
+    },
+    "apps/trading-bot/test_smc_chart.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "2fa332778a8e9900ac7b6e97db4974d5610c92e1f481a9188e4a67dcc97d3fdb",
+      "normalized_source_sha256": "ab49c610db0a49cb40e3b106bf09486040e67fe0429a8748a5e5a9a5506a46a8"
+    },
+    "apps/trading-bot/test_telegram_ux.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "7f5550d057cf1df256402bcd110553d38e8476161c473301759172f915ef1636",
+      "normalized_source_sha256": "53af0430851c869aa337d7be98af26af5503ddc829e3a6e2e8c6344f72a338a3"
+    },
+    "apps/trading-bot/test_test_outbox.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "7d76cd6d24782aa0961d99719e67e34b2957a07f1f9b9839c9974468e82e6551",
+      "normalized_source_sha256": "7d76cd6d24782aa0961d99719e67e34b2957a07f1f9b9839c9974468e82e6551"
+    },
+    "apps/trading-bot/test_trades.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "ae79b4759a624903190c2e1b85fc437787f142c5f7feb5b821d0e96b47a5de53",
+      "normalized_source_sha256": "ae79b4759a624903190c2e1b85fc437787f142c5f7feb5b821d0e96b47a5de53"
+    },
+    "apps/trading-bot/tick_journal.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "cf390c3ae9644577a6a0b5716f71c427f3e60c8e69b25b513dc56c84fb9e9b67",
+      "normalized_source_sha256": "cf390c3ae9644577a6a0b5716f71c427f3e60c8e69b25b513dc56c84fb9e9b67"
+    },
+    "apps/trading-bot/trades.py": {
+      "origin": "running-trading-release",
+      "source_sha256": "a71da30bbf3c648b9c1a3c173881de27b095f43ad0af0e5fb1daa362e45c6a0f",
+      "normalized_source_sha256": "2b2a9cc4919b984ff18dccbdd2f6eb34a6be5a4380fb1bc92aba2e28349f0ab0"
+    },
+    "apps/trading-bot/reference/ctrader-XAUUSD-schedule-20261112.json": {
+      "origin": "running-trading-release",
+      "source_sha256": "1dc0d5a2f709a9ec3920f8fbe2fe1b2feb704cd68e6709a13d08e9111dbe5757",
+      "normalized_source_sha256": "1dc0d5a2f709a9ec3920f8fbe2fe1b2feb704cd68e6709a13d08e9111dbe5757"
+    },
+    "apps/trading-bot/reference/XAU-SCALP-R1-telemetry.json": {
+      "origin": "running-trading-release",
+      "source_sha256": "f0b11804751d69f2f7ecd1b6c5c563c92e397da0a5d22d6f2751f7dc80231306",
+      "normalized_source_sha256": "3433a5d9184616a20051b20d53ae3a2c8130aa2019fbf1c6b95b4e6f979792c6"
+    },
+    "apps/trading-bot/reference/XAU-SCALP-R1-telemetry.pine": {
+      "origin": "running-trading-release",
+      "source_sha256": "d2bb08088901af6a6010f40e92858ac3b7c8fd72002435468fcd16ef8de935c6",
+      "normalized_source_sha256": "d2bb08088901af6a6010f40e92858ac3b7c8fd72002435468fcd16ef8de935c6"
+    },
+    "apps/trading-bot/reference/XAU-SCALP-R1-user-20261112.json": {
+      "origin": "running-trading-release",
+      "source_sha256": "7a3d42690d0457729247e6d788a3a8ace5015c12042580612add7c1e4a51782d",
+      "normalized_source_sha256": "7f3117af88e972e02c179d1ec71b2c45b360f68e7ede08e3b4639ced6572540a"
+    },
+    "apps/trading-bot/reference/XAU-SCALP-R1-user-20261112.pine": {
+      "origin": "running-trading-release",
+      "source_sha256": "00c44c20b26617a744a34cb533b675cb234b5efbbe0b5d34d3df5b59aa198823",
+      "normalized_source_sha256": "00c44c20b26617a744a34cb533b675cb234b5efbbe0b5d34d3df5b59aa198823"
+    },
+    "apps/trading-bot/reference/XAU-SCALP-R1.json": {
+      "origin": "running-trading-release",
+      "source_sha256": "d8e1e5343c836a92741e1d1ec106618eb4579ce3b8c38db713f12080bb2bbcf5",
+      "normalized_source_sha256": "d8e1e5343c836a92741e1d1ec106618eb4579ce3b8c38db713f12080bb2bbcf5"
+    },
+    "apps/trading-bot/exness_transport.mjs": {
+      "origin": "configured-market-collector",
+      "source_sha256": "a23468e9244d5352891e1e563048f948da8a76a8ed60aa8410ab796dcc3d7686",
+      "normalized_source_sha256": "ca8c256ec39fac224dc6e055f692723cec2513a6b7bd972a5284a5f7a2263e4a"
+    },
+    "apps/trading-bot/exness_signer.mjs": {
+      "origin": "configured-market-collector",
+      "source_sha256": "8520ea4253ce0d0967df20c6cd035b8a2a84e3497e3f91a517fcd337352b8f9d",
+      "normalized_source_sha256": "ae1b99cf2bf8bc78f585554de49656a156d45940a9f7d062983ae14ffa2cba60"
+    },
+    "apps/control-bot/bot.py": {
+      "origin": "running-control-service",
+      "source_sha256": "a26e0bb26840c9391ba1aa82f4b43cdf954ad09002d091a37126d269c460f710",
+      "normalized_source_sha256": "a26e0bb26840c9391ba1aa82f4b43cdf954ad09002d091a37126d269c460f710"
+    },
+    "apps/trading-bot/fixtures/combined_engine.py": {
+      "origin": "frozen-regression-baseline-combined-deploy-20261118",
+      "source_sha256": "6bf13cad7731959dab937633b0be04a02e30a3b6c9cab60fe811e9cd54b9cd16",
+      "normalized_source_sha256": "d30224efbb04346f8f1383051d396faeb54a8da238b86c52167d8ea1da2fd87e"
+    },
+    "apps/trading-bot/fixtures/chart_engine.py": {
+      "origin": "frozen-regression-baseline-chart-overlay-20261119",
+      "source_sha256": "b3a9d4bb4e69d7dab1693b07881688af879358dafaf91bf411d879e217b02efa",
+      "normalized_source_sha256": "6d0229464b37906fd49112f47bc2e7f2fa3afa2da0ff2e801f5188de9f54ab75"
+    }
+  }
+}

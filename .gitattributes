@@ -1,0 +1,4 @@
+* text=auto eol=lf
+# The engine verifies the exact bytes of the frozen source.
+*.pine -text
+*.png binary

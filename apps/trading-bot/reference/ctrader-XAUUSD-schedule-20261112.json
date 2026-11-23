@@ -1,0 +1,51 @@
+{
+  "symbolId": "41",
+  "digits": 2,
+  "pipPosition": 2,
+  "schedule": [
+    {
+      "startSecond": 64920,
+      "endSecond": 147540
+    },
+    {
+      "startSecond": 151320,
+      "endSecond": 233940
+    },
+    {
+      "startSecond": 237720,
+      "endSecond": 320340
+    },
+    {
+      "startSecond": 324120,
+      "endSecond": 406740
+    },
+    {
+      "startSecond": 410520,
+      "endSecond": 493020
+    }
+  ],
+  "scheduleTimeZone": "America/New_York",
+  "holiday": [
+    {
+      "holidayId": "1799",
+      "name": "Thanks Giving Day in US - Early Close @ 21:30",
+      "description": "11.2026 METALS / METALS F. XNGUSD, XTIUSD",
+      "scheduleTimeZone": "Europe/Bucharest",
+      "holidayDate": "20783",
+      "isRecurring": false,
+      "startSecond": 77400,
+      "endSecond": 86399
+    },
+    {
+      "holidayId": "1803",
+      "name": "After Thanks Giving Day in US - Early Close @ 21:45",
+      "description": "11.2026 METALS / METALS F. XNGUSD, XTIUSD",
+      "scheduleTimeZone": "Europe/Bucharest",
+      "holidayDate": "20784",
+      "isRecurring": false,
+      "startSecond": 78300,
+      "endSecond": 86399
+    }
+  ],
+  "tradingMode": "ENABLED"
+}

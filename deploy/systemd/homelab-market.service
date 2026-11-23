@@ -1,0 +1,18 @@
+[Unit]
+Description=Read-only XAUUSD market data collector
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/homelab-telegram-bots/apps/trading-bot
+EnvironmentFile=%h/.config/homelab-bots/trading.env
+ExecStartPre=/usr/bin/mkdir -p state
+ExecStart=%h/homelab-telegram-bots/.venv/bin/python -u exness_collector.py
+Restart=on-failure
+RestartSec=15
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

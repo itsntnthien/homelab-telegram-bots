@@ -1,0 +1,18 @@
+[Unit]
+Description=Economic calendar cache for the trading bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/homelab-telegram-bots/apps/trading-bot
+EnvironmentFile=%h/.config/homelab-bots/trading.env
+ExecStartPre=/usr/bin/mkdir -p state
+ExecStart=%h/homelab-telegram-bots/.venv/bin/python -u news_worker.py
+Restart=on-failure
+RestartSec=30
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

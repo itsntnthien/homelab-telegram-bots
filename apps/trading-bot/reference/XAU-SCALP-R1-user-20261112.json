@@ -1,0 +1,10 @@
+{
+  "source": "XAU-SCALP-R1-user-20261112.pine",
+  "source_origin": "user supplied Pine in this chat on 2026-11-12",
+  "sha256": "00c44c20b26617a744a34cb533b675cb234b5efbbe0b5d34d3df5b59aa198823",
+  "line_count": 3177,
+  "spread_price": 0.3,
+  "minimum_rr_milli": 1200,
+  "maximum_chase_atr": 0.25,
+  "parity_approved": false
+}
