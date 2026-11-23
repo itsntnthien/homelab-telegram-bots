@@ -22,6 +22,8 @@ A timeout can occur after Telegram has accepted a request. Such an outcome is re
 
 `setup_view.py`, `telegram_views.py` and `smc_chart.py` render saved signal evidence. Chat-scoped lookups restrict which stored setup a recipient can view. Chart generation uses Pillow and reuses recorded structure state.
 
+`position_size.py` owns private capital/risk settings and Decimal-based lot estimates. Entry notifications snapshot each recipient's settings and the collector's public instrument specifications; the delivery worker computes the lot from its fresh checked quote. This adds presentation data without changing shared position decisions or simulated outcomes. See [personal sizing](personal-lot.md).
+
 ## Administration
 
 The control bot polls Telegram and ignores messages outside `TELEGRAM_ADMIN_CHAT_ID`. It accepts fixed commands only. Restart/reboot requests create an in-memory, chat-bound confirmation valid for 60 seconds. Poll offsets persist with private file permissions; a Linux file lock prevents concurrent owners of the same state directory.

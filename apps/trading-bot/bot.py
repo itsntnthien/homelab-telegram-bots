@@ -259,6 +259,9 @@ class Telegram:
             {"command": "stats", "description": "Xem thống kê phiên"},
             {"command": "news", "description": "Xem tin tức hôm nay"},
             {"command": "settings", "description": "Cài đặt timeframe"},
+            {"command": "von", "description": "Nhập vốn USD, ví dụ /von 1000"},
+            {"command": "ruiro", "description": "Nhập rủi ro, ví dụ /ruiro 1% hoặc 10usd"},
+            {"command": "lot", "description": "Xem cài đặt vốn và rủi ro cá nhân"},
             {"command": "help", "description": "Xem hướng dẫn"},
         ]
         self.call("setMyCommands", {"commands": json.dumps(commands, ensure_ascii=False)}, timeout=5)
@@ -286,6 +289,7 @@ class Telegram:
             [{'text':'📡 Trạng thái'},{'text':'📈 Lệnh đang mở'}],
             [{'text':'📋 Lịch sử'},{'text':'📊 Thống kê'}],
             [{'text':'⚙️ Cài đặt'},{'text':'📰 Tin tức'}],
+            [{'text':'💰 Vốn & rủi ro'}],
             [{'text':'❓ Hướng dẫn'},{'text':'🏠 Mở bảng điều khiển'}]],
             'resize_keyboard':True,'is_persistent':True})
 
@@ -420,6 +424,7 @@ class Telegram:
             self.send_to(chat_id, text, markup)
 
     def poll(self, store, stop):
+        from position_size import handle as handle_sizing
         retry_delay = 1
         production_menu_store = TradeStore(store.path)
         menu_store = production_menu_store
@@ -479,6 +484,8 @@ class Telegram:
                                 self.call("answerCallbackQuery", {"callback_query_id": update["callback_query"]["id"], "text": f"{tf.upper()}: {'đã bật' if value else 'đã tắt'}"})
                                 enabled = menu_store.user_timeframes(str(chat["id"]), SYMBOL)
                                 self.call("editMessageText", {"chat_id": chat["id"], "message_id": update["callback_query"]["message"]["message_id"], "text": f"Chọn khung thời gian {SYMBOL}:", "reply_markup": json.dumps(self.menu_markup(enabled))})
+                        elif handle_sizing(self, menu_store, item, chat):
+                            pass
                         elif item.get("text", "").strip() in {"/start", "/menu", "Menu", "🏠 Mở bảng điều khiển"}:
                             self.home(chat["id"])
                         elif item.get("text", "").strip() in {"/status", "📡 Trạng thái"}:
@@ -489,6 +496,7 @@ class Telegram:
                                          "/open — lệnh đang mở\n/history — lịch sử\n"
                                          "/stats — thống kê phiên\n/news — tin tức hôm nay\n"
                                          "/settings — bật/tắt nhận tín hiệu\n\n"
+                                         "/von 1000 — vốn USD để tính lot\n/ruiro 1% hoặc /ruiro 10usd — rủi ro mỗi lệnh\n/lot — xem cài đặt riêng\n\n"
                                          "R là rủi ro ban đầu; kết quả hiển thị là mô phỏng, không phải tài khoản broker.\n"
                                          "Q100 là điểm chất lượng, không phải 100% thắng. Spread là chênh bid/ask.\n"
                                          "Chase giới hạn giá chạy bất lợi. Tin ĐÃ BỎ LỠ không phải lời mời vào lệnh.\n"

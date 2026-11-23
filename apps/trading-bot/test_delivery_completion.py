@@ -240,10 +240,11 @@ class CompletionTest(unittest.TestCase):
   self.store.set_news_enabled('42',False);self.store.ensure_users(['42'],'XAUUSD')
   self.assertFalse(self.store.news_enabled('42'))
 
- def test_mobile_menu_has_all_eight_functions_and_safe_html(self):
+ def test_mobile_menu_has_nine_functions_including_personal_risk_and_safe_html(self):
   tg=bot.Telegram('fake','42',chat_ids=['42']);sent=[]
   with patch.object(tg,'call',side_effect=lambda m,p,**k:(sent.append(p) or {'result':{'message_id':1}})),patch.object(tg,'sending_slot',return_value=nullcontext()):tg.home('42')
-  markup=json.loads(sent[0]['reply_markup']);self.assertEqual(sum(len(row) for row in markup['keyboard']),8)
+  markup=json.loads(sent[0]['reply_markup']);self.assertEqual(sum(len(row) for row in markup['keyboard']),9)
+  self.assertIn('💰 Vốn & rủi ro',[button['text'] for row in markup['keyboard'] for button in row])
   self.assertEqual(sent[0]['parse_mode'],'HTML')
   html=telegram_views.rich_text('Title <unsafe>\nEntry: 123.456\n<&>')
   self.assertIn('&lt;unsafe&gt;',html);self.assertIn('<code>123.456</code>',html);self.assertNotIn('<unsafe>',html)

@@ -40,6 +40,7 @@ The bots are separate processes and use separate Telegram tokens. The market col
 - **Recoverable processing:** SQLite transactions, engine snapshots, persisted tick cursors, single-writer locks and guarded state migrations.
 - **Data quality gates:** candle validation, market-session handling, stale-quote checks and readiness separate from process liveness.
 - **Restricted administration:** admin chat allowlist, fixed command dispatch, confirmation expiry, private poll-offset storage and backup checksums.
+- **Personal lot estimates:** each private recipient sets USD capital and percentage/fixed-money risk; new signals include a lot estimate rounded down to the broker step. See [personal sizing](docs/personal-lot.md).
 - **Reproducible checks:** synthetic fixtures, a no-credentials demo, Linux test automation and a focused package/secret check.
 
 ## Try it without credentials

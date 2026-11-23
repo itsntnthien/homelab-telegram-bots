@@ -80,6 +80,10 @@ To configure an isolated live instance, stop its shadow service, use separate li
 
 Do not set parity flags to true merely to enable this mode; these are separate claims. Existing populated state may require the guarded migration helpers. Do not start this copy against an existing live token, database or `/tmp/xauusd-bot.lock` owner. The legacy release's fixed live lock intentionally limits it to one live instance per host.
 
+## Personal lot estimates
+
+Trading recipients can configure personalized signal sizing with `/von 1000` and `/ruiro 1%` (or `/ruiro 10usd`) in their own private chats after the feature is deployed. See [personal lot estimates](personal-lot.md) for scope, manual capital updates, cost limits and schema rollback. These commands do not configure the separate homelab control bot.
+
 ## Control bot
 
 Configure its independent token/admin chat and actual AdGuard names. Run `python bot.py --self-test` from `apps/control-bot` before starting `homelab-control.service`.

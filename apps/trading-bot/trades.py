@@ -164,6 +164,13 @@ class TradeStore:
             CREATE TABLE IF NOT EXISTS user_news_settings (
                 chat_id TEXT PRIMARY KEY, enabled INTEGER NOT NULL DEFAULT 1
             );
+            CREATE TABLE IF NOT EXISTS user_risk_settings (
+                chat_id TEXT PRIMARY KEY,
+                capital_usd TEXT,
+                risk_mode TEXT CHECK(risk_mode IN ('percent','usd')),
+                risk_value TEXT,
+                updated_at TEXT NOT NULL
+            );
             CREATE TABLE IF NOT EXISTS user_counters (
                 chat_id TEXT NOT NULL, session TEXT NOT NULL, value INTEGER NOT NULL,
                 PRIMARY KEY(chat_id, session)

@@ -342,6 +342,8 @@ class IntradayRunner:
                     at=utc_timestamp(event['event_time']), metadata=metadata)
                 self.store.db.execute('UPDATE trade_events SET trade_id=? WHERE event_key=?', (trade.id, key))
                 if created and self.telegram:
+                    from position_size import profile as sizing_profile, market_spec
+                    sizing_spec=market_spec(self.market)
                     for chat in self.telegram.chat_ids:
                         if self.store.user_enabled(chat, 'XAUUSD', 'm30'):
                             number, _ = self.store.create_user_signal(chat, trade)
@@ -352,6 +354,7 @@ class IntradayRunner:
                                 delivery=dict(trade_id=trade.id,engine_version=VERSION,label=f'#{number} XAUUSD {trade.signal} · '+p['strategy'],
                                     market_path=str(self.market_path),direction=p['direction'],entry=p['entry'],sl=p['sl'],tp=p['tp'],
                                     initial_risk=p['risk'],atr=p['entry_atr'],
+                                    sizing_profile=sizing_profile(self.store,chat),sizing_spec=sizing_spec,
                                     maximum_chase_atr=component(p)['profile']['maximum_chase_atr'],
                                     minimum_net_rr=component(p)['profile']['minimum_net_rr'],**COST))
             elif kind in ('SL', 'TP2', 'TIME_EXIT', 'DAY_CLOSE', 'DATA_GAP'):

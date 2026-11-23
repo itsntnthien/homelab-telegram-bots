@@ -6,7 +6,7 @@ Checked on **2026-11-23**. These results describe the packaged repository and a 
 
 | Check | Result |
 | --- | --- |
-| Trading Python suite | **225 passed** on Windows/Python 3.13 and isolated Linux/Python 3.14. |
+| Trading Python suite | **237 passed** on Windows/Python 3.13 and isolated Linux/Python 3.14. |
 | Control Python suite | **7 passed** on Linux, plus the existing command self-test. Host-changing commands and Telegram calls are mocked. |
 | Node signer/session tests | **8 passed** on Node 24, using ephemeral keys and synthetic calendar data with no broker connection. |
 | Transport syntax | `node --check exness_transport.mjs` passed. |
@@ -15,7 +15,7 @@ Checked on **2026-11-23**. These results describe the packaged repository and a 
 | npm dependencies | Lockfile generated; install/audit reported zero known vulnerabilities at verification time. This is not a broader security audit. |
 | Package checks | Passed known secret-pattern/file checks, Python import declaration checks and frozen Pine fingerprint validation. |
 
-Total after the collector sync: **240 passing automated test cases on Linux**, plus self-test, demo and package checks. Windows deliberately skips Linux control tests. The initial 231-test package passed [hosted CI on Python 3.13/3.14](https://github.com/itsntnthien/homelab-telegram-bots/actions/runs/45125355051). See the [workflow runs](https://github.com/itsntnthien/homelab-telegram-bots/actions) for the result corresponding to the current commit.
+Current suite: **252 passing automated test cases on Linux**, plus self-test, demo and package checks (240 before personal lot sizing). Windows deliberately skips Linux control tests. The initial 231-test package passed [hosted CI on Python 3.13/3.14](https://github.com/itsntnthien/homelab-telegram-bots/actions/runs/45125355051). See the [workflow runs](https://github.com/itsntnthien/homelab-telegram-bots/actions) for the result corresponding to the current commit.
 
 Linux verification ran from an isolated temporary copy using a fresh virtual environment. Node tests ran in an existing Node 24 container with networking disabled. No production database, Telegram token or broker credential was passed to the tests. The two regression comparisons retain independent historical engine fixtures; they were not removed or replaced with self-comparisons to make packaging pass.
 
@@ -50,6 +50,8 @@ The added regression cases cover alternate session formatting, invalid or missin
 The example market service also adopts the running service's `RestartPreventExitStatus=78` so blocked configuration errors do not trigger automatic restart loops.
 
 ## Scope and limits
+
+Personal sizing adds 12 tests covering decimal rounding, min/max lots, invalid inputs, separate private recipients, durable preferences, additive schema preservation, entry snapshots and actual mocked Telegram delivery with distinct lots. A separate old-code → new-code → old-code check preserved the synthetic ledger, pending outbox, poll cursor and new preferences. Tests use fake capital and no real user balances. These checks do not establish live deployment or broker execution.
 
 - No live end-to-end broker-to-phone delivery test or production admin action was performed.
 - No claim of profitability, Pine parity, complete broker holiday coverage, 48-hour readiness acceptance or an availability SLO.

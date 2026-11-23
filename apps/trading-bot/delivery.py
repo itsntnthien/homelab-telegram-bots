@@ -104,10 +104,14 @@ def prepare(store,row,now=None):
                     action,check='WAIT',dict(check,reason='Chờ engine xử lý hết tick trước khi gửi')
         except (sqlite3.Error,ValueError,TypeError,OverflowError):
             action,check='WAIT',dict(reason='Chưa đọc được quote hợp lệ')
+    sizing_text=''
+    if action=='SEND' and 'sizing_profile' in config:
+        from position_size import annotation
+        sizing_text,check['position_size']=annotation(config,check,row['chat_id'])
     with store.transaction():
         store.db.execute('UPDATE notifications SET check_json=? WHERE event_key=?',(json.dumps(check),row['event_key']))
         if action=='SKIP': missed(store,row,check['reason'],now,check)
     if action!='SEND':
         return None
     at=now.astimezone(__import__('zoneinfo').ZoneInfo('Asia/Ho_Chi_Minh')).strftime('%H:%M:%S %d/%m/%Y')
-    return row['body']+f"\n\nGiá kiểm tra: {check['price']:.3f} · RR còn {check['net_rr']:.2f}\nLệch theo hướng lệnh: {check['delta_usd']:+.3f} USD\nKiểm tra {at} (VN) · giá có thể thay đổi."
+    return row['body']+f"\n\nGiá kiểm tra: {check['price']:.3f} · RR còn {check['net_rr']:.2f}\nLệch theo hướng lệnh: {check['delta_usd']:+.3f} USD\nKiểm tra {at} (VN) · giá có thể thay đổi."+sizing_text
