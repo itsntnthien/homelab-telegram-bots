@@ -259,9 +259,6 @@ class Telegram:
             {"command": "stats", "description": "Xem thống kê phiên"},
             {"command": "news", "description": "Xem tin tức hôm nay"},
             {"command": "settings", "description": "Cài đặt timeframe"},
-            {"command": "von", "description": "Nhập vốn USD, ví dụ /von 1000"},
-            {"command": "ruiro", "description": "Nhập rủi ro, ví dụ /ruiro 1% hoặc 10usd"},
-            {"command": "lot", "description": "Xem cài đặt vốn và rủi ro cá nhân"},
             {"command": "help", "description": "Xem hướng dẫn"},
         ]
         self.call("setMyCommands", {"commands": json.dumps(commands, ensure_ascii=False)}, timeout=5)
@@ -492,11 +489,11 @@ class Telegram:
                             self.send_to(chat["id"], ("[TEST · trạng thái dịch vụ chung; dữ liệu giao dịch TEST tách riêng]\n" if menu_store is test_menu_store else "") + self.status_text())
                         elif item.get("text", "").strip() in {"/help", "❓ Hướng dẫn"}:
                             self.send_to(chat["id"], "❓ HƯỚNG DẪN\n\n"
-                                         "/start — mở menu\n/status — trạng thái bot\n"
-                                         "/open — lệnh đang mở\n/history — lịch sử\n"
-                                         "/stats — thống kê phiên\n/news — tin tức hôm nay\n"
-                                         "/settings — bật/tắt nhận tín hiệu\n\n"
-                                         "/von 1000 — vốn USD để tính lot\n/ruiro 1% hoặc /ruiro 10usd — rủi ro mỗi lệnh\n/lot — xem cài đặt riêng\n\n"
+                                         "Dùng các nút trên bàn phím của bot:\n"
+                                         "🏠 Mở bảng điều khiển — menu chính\n📡 Trạng thái — trạng thái bot\n"
+                                         "📈 Lệnh đang mở · 📋 Lịch sử · 📊 Thống kê\n"
+                                         "📰 Tin tức — lịch tin và thông báo\n⚙️ Cài đặt — bật/tắt nhận tín hiệu\n\n"
+                                         "💰 Vốn & rủi ro — chọn tài khoản USD/Cent, Nhập vốn, rồi chọn kiểu rủi ro bằng nút. Chỉ gõ con số khi bot hỏi.\n\n"
                                          "R là rủi ro ban đầu; kết quả hiển thị là mô phỏng, không phải tài khoản broker.\n"
                                          "Q100 là điểm chất lượng, không phải 100% thắng. Spread là chênh bid/ask.\n"
                                          "Chase giới hạn giá chạy bất lợi. Tin ĐÃ BỎ LỠ không phải lời mời vào lệnh.\n"

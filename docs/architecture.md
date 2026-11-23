@@ -22,7 +22,7 @@ A timeout can occur after Telegram has accepted a request. Such an outcome is re
 
 `setup_view.py`, `telegram_views.py` and `smc_chart.py` render saved signal evidence. Chat-scoped lookups restrict which stored setup a recipient can view. Chart generation uses Pillow and reuses recorded structure state.
 
-`position_size.py` owns private capital/risk settings and Decimal-based lot estimates. Entry notifications snapshot each recipient's settings and the collector's public instrument specifications; the delivery worker computes the lot from its fresh checked quote. This adds presentation data without changing shared position decisions or simulated outcomes. See [personal sizing](personal-lot.md).
+`position_size.py` owns private capital/risk settings, persistent button-input state, USD/USC conversion and Decimal-based lot estimates. Entry notifications snapshot the account type, canonical USD amounts and the collector or versioned Cent reference specifications; the delivery worker computes volume from its fresh checked XAUUSD quote. This adds presentation data without changing shared position decisions or simulated outcomes. See [personal sizing](personal-lot.md).
 
 ## Administration
 

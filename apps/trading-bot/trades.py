@@ -171,6 +171,11 @@ class TradeStore:
                 risk_value TEXT,
                 updated_at TEXT NOT NULL
             );
+            CREATE TABLE IF NOT EXISTS user_risk_ui (
+                chat_id TEXT PRIMARY KEY,
+                account_type TEXT NOT NULL DEFAULT 'usd' CHECK(account_type IN ('usd','cent')),
+                pending TEXT CHECK(pending IN ('capital','percent','money','delete'))
+            );
             CREATE TABLE IF NOT EXISTS user_counters (
                 chat_id TEXT NOT NULL, session TEXT NOT NULL, value INTEGER NOT NULL,
                 PRIMARY KEY(chat_id, session)

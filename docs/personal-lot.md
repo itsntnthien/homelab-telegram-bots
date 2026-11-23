@@ -1,39 +1,53 @@
 # Personal lot estimates
 
-Each authorized recipient configures their own capital and risk in a private chat:
+Each authorized recipient configures their own account in a private chat, entirely through buttons:
+
+1. Open **💰 Vốn & rủi ro** from the home keyboard.
+2. Choose **💵 Tài khoản USD** or **🪙 Tài khoản Cent**.
+3. Press **💰 Nhập vốn**, then type only the numeric balance.
+4. Press **📉 Rủi ro theo %** or **💸 Rủi ro cố định**, then type only the numeric risk.
+5. Use **👁 Xem cài đặt** to review, **↩️ Hủy / Quay lại** to cancel input, or **🏠 Mở bảng điều khiển** to return home. Deletion has a separate confirmation button.
+
+The current home keyboard can be reopened using its existing home button. No slash command is needed for this flow. Legacy `/von`, `/ruiro` and `/lot` handlers remain compatible but are no longer advertised; legacy capital commands retain their original USD meaning.
+
+## Account units
+
+| Choice | Balance and fixed risk input | Output volume |
+| --- | --- | --- |
+| USD | USD | Standard XAUUSD lots |
+| Exness Standard Cent | USC, where 100 USC = 1 USD | XAUUSDc cent lots |
+
+One active account type is stored per recipient. Existing users remain USD. Switching type preserves the real monetary amount: 1,000 USD displays as 100,000 USC, and fixed risk is converted the same way. It changes the volume unit, not the money. Enter the new balance when switching to a different actual account. Percentage risk is unchanged. Balances are maintained manually; simulated P/L never adjusts them.
+
+### Cent reference model
+
+Exness documents [Standard Cent](https://get.exness.help/hc/en-us/articles/17537782786588-Standard-Cent-account) as using cent balances, a cent lot equal to 0.01 standard lot, and XAUUSDc. Its published account limits are 0.01–200 cent lots. The [gold specification](https://get.exness.help/hc/en-us/articles/17854173039388-Commodities) gives 100 troy ounces per standard XAUUSD lot. Checked 2026-11-23.
+
+The versioned Cent model derives **1 troy ounce per cent lot** from those two specifications and uses a **0.01 cent-lot sizing grid**. That grid is a model assumption, not a verified specification fetched from the recipient's trading server. The account panel and each Cent signal explicitly show it. Account-specific platform specifications take precedence; this is not a universal conversion for other brokers or cent currencies.
+
+The collector supplies a checked XAUUSD bid/ask, **not a separate XAUUSDc quote**. Cent results therefore remain reference estimates: actual Cent spread, execution price, account-specific commission, margin, and server volume constraints are not verified. The bot neither connects to the recipient's account nor places an order. Cent outputs label both cent lots and their equivalent standard lots and tell the recipient to check the XAUUSDc price/specification before execution.
+
+## Calculation and delivery
+
+Canonical capital and fixed risk are stored in USD using decimal strings. USC inputs are divided by 100 exactly; percentage inputs are never divided by 100 twice.
 
 ```text
-/von 1000
-/ruiro 1%
-```
-
-Alternatively, `/ruiro 10usd` selects a fixed USD budget per signal. Values are examples, not defaults or recommended risk levels. `/lot` shows the current settings; `/lot off` deletes them for future entries. The home keyboard includes **💰 Vốn & rủi ro** with these instructions.
-
-The supported scope is standard **XAUUSD quoted in USD**. Enter capital in USD, not the numeric balance of a cent account. This feature does not link to a broker account, size orders in other currencies or submit trades.
-
-## What appears in a signal
-
-The usual Entry/SL/TP signal remains shared. Each recipient additionally receives their own estimated lot size, capital, selected risk budget and modeled loss at SL. No profile is shared across recipients. If capital/risk is missing or instrument specifications cannot be validated, the message explains why no lot is supplied. If the budget is below the minimum lot's modeled risk, it reports that limit instead of rounding up.
-
-Profiles and public instrument specifications are captured when a new entry notification is queued. The lot is calculated from the executable quote already validated immediately before delivery, together with the signal's SL. A later profile edit does not rewrite a queued signal or past messages. Changing capital never changes the simulated trade, the engine's configuration or other users' notifications.
-
-## Calculation and limits
-
-```text
-budget = capital × risk_percent / 100   (or a fixed USD amount)
+budget_usd = capital_usd × risk_percent / 100   (or fixed risk in USD)
 risk_per_lot = (direction × (checked_price − SL)
                 + 2 × modeled_slippage + modeled_commission) × contract_size
-lots = floor_to_volume_step(min(budget / risk_per_lot, broker_volume_max))
+lots = floor_to_volume_step(min(budget_usd / risk_per_lot, volume_max))
 ```
 
-The source's bid/ask quote already includes spread; the calculation does not add it twice. Decimal arithmetic is used for budgeting and rounding. Contract size and min/max/step come from the validated collector metadata; no fallback lot specification is guessed.
+USD uses validated collector contract/min/max/step metadata. Cent uses the explicit versioned reference model above, and floors on the cent-lot grid before calculating the standard-lot equivalent. A budget below the minimum lot's modeled risk produces an explanation instead of rounding up. Unknown account types, incomplete settings and invalid specifications do not produce guessed lots.
 
-The current engine's cost model is not a verification of each recipient's commission or margin. Output explicitly notes that account-specific fees and margin are not checked. Gaps, slippage beyond the modeled allowance and the user's actual execution price can exceed the displayed estimate. Capital remains manually maintained; simulated P/L never changes it.
+The checked bid/ask already includes its source spread; it is not added twice. Fees and slippage beyond the model, market gaps and the actual execution price can exceed the displayed estimate. Equal real capital and risk have equal modeled loss budgets across account types, though their different volume grids can produce different rounded exposure.
 
-## Storage and compatibility
+Capital, risk, account type and the Cent model (if selected) are snapshotted per recipient when a new entry is queued. Delivery calculates volume from the freshly checked quote and signal SL. Later settings changes do not rewrite queued or historical notifications. Old queued profiles with no account type retain USD behavior. Existing notifications with no sizing metadata retain their old behavior.
 
-`user_risk_settings` is an additive SQLite table keyed by the authenticated private chat ID. Commands validate the authorized chat and matching sender before reading or writing settings. Monetary values are stored as decimal strings. An incomplete profile is permitted until both capital and risk have been entered.
+## Persistence and migration
 
-Existing trade/event/outbox tables and engine snapshots retain their structure. Existing notifications without sizing metadata keep their previous behavior. New notifications carry a per-recipient snapshot in `delivery_json`; the final calculation is recorded alongside the quote check in `check_json`.
+`user_risk_settings` retains its original schema and canonical USD values. The additive `user_risk_ui` table stores the selected account and pending numeric input per authenticated private chat. This input state survives restarts. Invalid input leaves settings unchanged; navigation cancels pending input. Only the authorized matching sender can change a private profile.
 
-Rollback means restoring the prior code while preserving the latest database. The old readers ignore the new table and metadata. Do not restore an older database or drop the new table as part of code rollback. Production rollout is a separate operational step; the repository does not automatically deploy these changes.
+Trade/event/outbox tables and engine snapshots retain their structure. The final sizing result is recorded in `check_json`. Neither settings nor balances are exported to GitHub.
+
+For rollback, preserve the latest database and poll cursor. A pre-Cent release can read the canonical USD amounts but cannot honor Cent lot semantics. **Do not roll back to pre-Cent code while Cent profiles or queued Cent notifications exist**; use a forward fix or a compatible release. Never restore an older runtime database or drop user settings as part of code rollback.

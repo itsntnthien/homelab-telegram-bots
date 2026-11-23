@@ -1,11 +1,26 @@
-"""Private USD risk preferences and indicative standard-XAUUSD sizing; no orders."""
+"""Private button-driven USD/USC accounts and indicative gold sizing; no orders."""
 from datetime import datetime, timezone
 from decimal import Decimal, InvalidOperation, ROUND_FLOOR
 import json
 import re
 
 BUTTON = '💰 Vốn & rủi ro'
+USD = '💵 Tài khoản USD'
+CENT = '🪙 Tài khoản Cent'
+CAPITAL = '💰 Nhập vốn'
+PERCENT = '📉 Rủi ro theo %'
+MONEY = '💸 Rủi ro cố định'
+VIEW = '👁 Xem cài đặt'
+CANCEL = '↩️ Hủy / Quay lại'
+DELETE = '🗑 Xóa cài đặt lot'
+CONFIRM = '✅ Xác nhận xóa'
+HOME = '🏠 Mở bảng điều khiển'
+BUTTONS = {BUTTON,USD,CENT,CAPITAL,PERCENT,MONEY,VIEW,CANCEL,DELETE,CONFIRM}
+NAVIGATION = {HOME,'📡 Trạng thái','📈 Lệnh đang mở','📋 Lịch sử','📊 Thống kê','⚙️ Cài đặt','📰 Tin tức','❓ Hướng dẫn','Menu'}
 LIMIT = Decimal('1000000000')
+# Reference model, not a live XAUUSDc quote/specification feed. See docs/personal-lot.md.
+CENT_SPEC = dict(instrument='XAUUSDc',contract_size='1',volume_min='0.01',volume_max='200',volume_step='0.01',
+                 source='exness-standard-cent-reference-20261123')
 
 
 def number(value, *, allow_zero=False):
@@ -33,20 +48,46 @@ def display(value):
 
 def profile(store, chat_id):
     row = store.db.execute('SELECT chat_id,capital_usd,risk_mode,risk_value,updated_at FROM user_risk_settings WHERE chat_id=?', (str(chat_id),)).fetchone()
-    return dict(zip(('chat_id','capital_usd','risk_mode','risk_value','updated_at'), row)) if row else None
+    if not row: return None
+    result=dict(zip(('chat_id','capital_usd','risk_mode','risk_value','updated_at'), row),account_type=ui(store,chat_id)[0])
+    if result['account_type']=='cent': result['cent_spec']=dict(CENT_SPEC)
+    return result
 
 
-def save(store, chat_id, field, value):
+def ui(store, chat_id):
+    row=store.db.execute('SELECT account_type,pending FROM user_risk_ui WHERE chat_id=?',(str(chat_id),)).fetchone()
+    return tuple(row) if row else ('usd',None)
+
+
+def set_ui(store, chat_id, account, pending=None):
+    with store.transaction():
+        store.db.execute('INSERT INTO user_risk_ui VALUES(?,?,?) ON CONFLICT(chat_id) DO UPDATE SET account_type=excluded.account_type,pending=excluded.pending',
+                         (str(chat_id),account,pending))
+
+
+def keyboard(pending=None):
+    rows=([[CONFIRM],[CANCEL,HOME]] if pending=='delete' else [[CANCEL,HOME]] if pending else
+          [[USD,CENT],[CAPITAL],[PERCENT,MONEY],[VIEW,DELETE],[HOME]])
+    return dict(keyboard=[[dict(text=x) for x in row] for row in rows],resize_keyboard=True,is_persistent=True)
+
+
+def money_text(value, account):
+    return display(Decimal(str(value))*100)+' USC (Cent)' if account=='cent' else display(value)+' USD'
+
+
+def save(store, chat_id, field, value, *, account='usd'):
     with store.transaction():
         current = profile(store, chat_id) or dict(chat_id=str(chat_id), capital_usd=None, risk_mode=None, risk_value=None)
         if field == 'capital':
-            current['capital_usd'] = str(entered_number(value))
+            current['capital_usd'] = str(entered_number(value)/(100 if account=='cent' else 1))
         elif field == 'risk':
-            match = re.fullmatch(r'(.+?)\s*(%|usd)', value.strip(), re.IGNORECASE)
+            match = re.fullmatch(r'(.+?)\s*(%|usd|usc)', value.strip(), re.IGNORECASE)
             if not match:
-                raise ValueError('Ghi rõ đơn vị: /ruiro 1% hoặc /ruiro 10usd')
+                raise ValueError('Bấm nút chọn kiểu rủi ro rồi nhập số')
             risk = entered_number(match[1])
             mode = 'percent' if match[2] == '%' else 'usd'
+            if match[2].lower()=='usc':
+                risk/=100
             if mode == 'percent' and risk > 100:
                 raise ValueError('Rủi ro phần trăm không được vượt 100%')
             current.update(risk_mode=mode, risk_value=str(risk))
@@ -62,15 +103,17 @@ def save(store, chat_id, field, value):
 
 def summary(store, chat_id):
     p = profile(store, chat_id) or {}
-    capital = display(p['capital_usd'])+' USD' if p.get('capital_usd') else 'chưa nhập'
-    risk = display(p['risk_value'])+('% vốn' if p.get('risk_mode')=='percent' else ' USD/lệnh') if p.get('risk_value') else 'chưa nhập'
-    return (f'{BUTTON}\nXAUUSD chuẩn · vốn USD (không dùng số dư Cent)\n'
+    account=ui(store,chat_id)[0]
+    capital = money_text(p['capital_usd'],account) if p.get('capital_usd') else 'chưa nhập'
+    risk = (display(p['risk_value'])+'% vốn' if p.get('risk_mode')=='percent' else money_text(p['risk_value'],account)+'/lệnh') if p.get('risk_value') else 'chưa nhập'
+    kind='Exness Standard Cent · USC · XAUUSDc · cent lot' if account=='cent' else 'USD · XAUUSD · lot chuẩn'
+    note=('Mô hình Cent: 1 cent lot = 0,01 lot chuẩn; bước 0,01 cent lot. Giá XAUUSD tham chiếu; đối chiếu quy cách và giá XAUUSDc trên tài khoản.\n' if account=='cent' else '')
+    return (f'{BUTTON}\nTài khoản: {kind}\n'
             f'Vốn: {capital}\nRủi ro: {risk}\n\n'
-            '/von 1000 — nhập/cập nhật vốn USD\n'
-            '/ruiro 1% — tự chọn phần trăm vốn mỗi lệnh\n'
-            '/ruiro 10usd — hoặc số tiền cố định mỗi lệnh\n'
-            '/lot — xem cài đặt\n/lot off — xóa cài đặt lot\n\n'
-            'Các số trên chỉ là ví dụ. Áp dụng cho tín hiệu mới sau khi lưu đủ vốn và rủi ro. '
+            'Chọn loại tài khoản → Nhập vốn → chọn kiểu rủi ro. Chỉ gõ con số khi bot hỏi.\n'
+            '100 USC = 1 USD. Đổi loại tài khoản giữ nguyên giá trị tiền và đổi loại lot; hãy nhập lại vốn nếu dùng tài khoản khác.\n\n'
+            +note+
+            'Áp dụng cho tín hiệu mới sau khi lưu đủ vốn và rủi ro. '
             'Vốn không tự tăng/giảm theo kết quả mô phỏng. Bot không đặt lệnh và không kiểm tra ký quỹ.')
 
 
@@ -78,24 +121,64 @@ def handle(telegram, store, item, chat):
     text = item.get('text', '').strip()
     parts = text.split(maxsplit=1)
     command = parts[0].split('@',1)[0].lower() if parts else ''
-    if text != BUTTON and command not in {'/von','/ruiro','/lot'}:
-        return False
+    recognized=text in BUTTONS or command in {'/von','/ruiro','/lot'}
     if chat.get('type') != 'private' or str(item.get('from',{}).get('id')) != str(chat.get('id')):
-        telegram.send_to(chat['id'], 'Vốn và rủi ro chỉ được cài đặt trong chat riêng với bot.')
-        return True
+        if recognized:
+            telegram.send_to(chat['id'], 'Vốn và rủi ro chỉ được cài đặt trong chat riêng với bot.')
+        return recognized
+    account,pending=ui(store,chat['id'])
+    if not recognized and (text in NAVIGATION or command.startswith('/')):
+        if pending: set_ui(store,chat['id'],account)
+        return False
+    if not recognized and not pending:
+        return False
     try:
-        if command in {'/von','/ruiro'}:
+        if text in {USD,CENT}:
+            account='cent' if text==CENT else 'usd'
+            set_ui(store,chat['id'],account)
+        elif text in {CAPITAL,PERCENT,MONEY}:
+            pending={CAPITAL:'capital',PERCENT:'percent',MONEY:'money'}[text]
+            set_ui(store,chat['id'],account,pending)
+            unit='USC (Cent)' if account=='cent' else 'USD'
+            prompt=(f'Nhập vốn bằng {unit}.' if pending=='capital' else 'Nhập phần trăm vốn rủi ro cho mỗi lệnh.' if pending=='percent' else f'Nhập số tiền rủi ro mỗi lệnh bằng {unit}.')
+            telegram.send_to(chat['id'],prompt+'\nChỉ nhập số dương; dùng dấu chấm hoặc phẩy cho phần thập phân, không phân cách hàng nghìn.',keyboard(pending))
+            return True
+        elif text==DELETE:
+            set_ui(store,chat['id'],account,'delete')
+            telegram.send_to(chat['id'],'Xóa vốn và rủi ro đã lưu của bạn? Các tín hiệu mới sẽ không có lot cho tới khi cài đặt lại.',keyboard('delete'))
+            return True
+        elif text==CONFIRM:
+            if pending!='delete': raise ValueError('Bấm Xóa cài đặt lot trước khi xác nhận')
+            with store.transaction():
+                store.db.execute('DELETE FROM user_risk_settings WHERE chat_id=?',(str(chat['id']),))
+                set_ui(store,chat['id'],account)
+        elif text in {BUTTON,VIEW,CANCEL}:
+            set_ui(store,chat['id'],account)
+        elif command in {'/von','/ruiro'}:
             if len(parts) != 2:
-                raise ValueError('Dùng /von 1000 (USD) hoặc /ruiro 1% hay /ruiro 10usd')
+                telegram.send_to(chat['id'],summary(store,chat['id']),keyboard())
+                return True
+            # Legacy commands keep their original USD meaning; buttons use the selected account.
             save(store, chat['id'], 'capital' if command=='/von' else 'risk', parts[1])
+            set_ui(store,chat['id'],account)
         elif command == '/lot' and len(parts)==2:
             if parts[1].lower() != 'off':
-                raise ValueError('Dùng /lot để xem hoặc /lot off để xóa')
+                raise ValueError('Bấm nút Xem cài đặt hoặc Xóa cài đặt lot')
             with store.transaction():
                 store.db.execute('DELETE FROM user_risk_settings WHERE chat_id=?', (str(chat['id']),))
-        telegram.send_to(chat['id'], summary(store,chat['id']))
+                set_ui(store,chat['id'],account)
+        elif command=='/lot':
+            set_ui(store,chat['id'],account)
+        elif pending in {'capital','percent','money'}:
+            with store.transaction():
+                suffix='%' if pending=='percent' else 'usc' if account=='cent' else 'usd'
+                save(store,chat['id'],'capital' if pending=='capital' else 'risk',text if pending=='capital' else text+suffix,account=account)
+                set_ui(store,chat['id'],account)
+        else:
+            raise ValueError('Chọn Xác nhận xóa hoặc Hủy bằng nút')
+        telegram.send_to(chat['id'], summary(store,chat['id']),keyboard())
     except ValueError as exc:
-        telegram.send_to(chat['id'], 'Chưa lưu: '+str(exc))
+        telegram.send_to(chat['id'], 'Chưa lưu: '+str(exc),keyboard(ui(store,chat['id'])[1]))
     return True
 
 
@@ -122,6 +205,14 @@ def calculate(p, spec, price, sl, direction, slippage=0, commission=0):
         raise ValueError('Rủi ro vượt vốn')
     contract=number(spec['contract_size']);minimum=number(spec['volume_min'])
     maximum=number(spec['volume_max']);step=number(spec['volume_step'])
+    account=p.get('account_type','usd')
+    if account not in {'usd','cent'}: raise ValueError('Loại tài khoản không hợp lệ')
+    if account=='cent':
+        cent=p.get('cent_spec') or {}
+        if contract!=100 or cent.get('instrument')!='XAUUSDc' or cent.get('source')!=CENT_SPEC['source']:
+            raise ValueError('Thiếu quy cách Cent đã xác định')
+        contract=number(cent['contract_size']);minimum=number(cent['volume_min'])
+        maximum=number(cent['volume_max']);step=number(cent['volume_step'])
     if minimum>maximum or minimum%step or direction not in (-1,1) or isinstance(direction,bool):
         raise ValueError('Quy cách lot không hợp lệ')
     distance=(number(price)-number(sl))*direction
@@ -133,14 +224,15 @@ def calculate(p, spec, price, sl, direction, slippage=0, commission=0):
     lots=(min(raw,maximum)/step).to_integral_value(rounding=ROUND_FLOOR)*step
     if lots<minimum:
         return dict(state='BELOW_MINIMUM',budget_usd=str(budget),minimum_lot=str(minimum),minimum_risk_usd=str(minimum*per_lot))
-    return dict(state='OK',lot=str(lots),budget_usd=str(budget),estimated_risk_usd=str(lots*per_lot),
+    return dict(state='OK',lot=str(lots),account_type=account,standard_lot=str(lots/100 if account=='cent' else lots),
+                budget_usd=str(budget),estimated_risk_usd=str(lots*per_lot),
                 price=str(price),sl=str(sl),capital_usd=str(capital),risk_mode=p['risk_mode'],risk_value=str(risk_value))
 
 
 def annotation(config, check, chat_id):
     p=config.get('sizing_profile')
     if not p or not p.get('capital_usd') or not p.get('risk_value'):
-        return '\n\nLot: chưa cài đặt — dùng /von và /ruiro trong chat riêng.', {'state':'UNCONFIGURED'}
+        return '\n\nLot: chưa cài đặt — bấm 💰 Vốn & rủi ro trong chat riêng.', {'state':'UNCONFIGURED'}
     if str(p.get('chat_id'))!=str(chat_id):
         return '\n\nLot: không tính được do cấu hình người nhận không khớp.', {'state':'INVALID_PROFILE'}
     try:
@@ -148,12 +240,18 @@ def annotation(config, check, chat_id):
                          config['slippage'],config['commission'])
     except (KeyError, TypeError, ValueError, InvalidOperation):
         return '\n\nLot: chưa tính được; cần kiểm tra vốn/rủi ro và quy cách sản phẩm.', {'state':'UNAVAILABLE'}
+    account=p.get('account_type','usd')
+    label='cent lot (XAUUSDc)' if account=='cent' else 'lot chuẩn (XAUUSD)'
     if result['state']=='BELOW_MINIMUM':
-        return (f"\n\nLot: không đủ ngân sách rủi ro cho mức tối thiểu {display(result['minimum_lot'])}."
-                f"\nNgân sách {float(result['budget_usd']):.2f} USD; lot tối thiểu cần khoảng {float(result['minimum_risk_usd']):.2f} USD tại SL."
+        return (f"\n\nLot: không đủ ngân sách rủi ro cho mức tối thiểu {display(result['minimum_lot'])} {label}."
+                f"\nNgân sách {money_text(result['budget_usd'],account)}; lot tối thiểu cần khoảng {money_text(result['minimum_risk_usd'],account)} tại SL."
                 '\nKhông tự nâng lot.',result)
-    text=(f"\n\nLot tham khảo của bạn: {result['lot']} lot"
-          f"\nVốn {display(p['capital_usd'])} USD · rủi ro chọn {display(p['risk_value'])}{'%' if p['risk_mode']=='percent' else ' USD'}"
-          f"\nLỗ ước tính tại SL: {float(result['estimated_risk_usd']):.2f} / {float(result['budget_usd']):.2f} USD"
+    risk=display(p['risk_value'])+'%' if p['risk_mode']=='percent' else money_text(p['risk_value'],account)
+    text=(f"\n\nLot tham khảo của bạn: {result['lot']} {label}"
+          f"\nVốn {money_text(p['capital_usd'],account)} · rủi ro chọn {risk}"
+          f"\nLỗ ước tính tại SL: {money_text(result['estimated_risk_usd'],account)} / {money_text(result['budget_usd'],account)}"
           '\nTheo giá kiểm tra và SL; làm tròn xuống. Có dự phòng trượt giá theo engine; chưa gồm phí riêng của tài khoản/ký quỹ. Giá gap có thể làm lỗ vượt ước tính.')
+    if account=='cent':
+        text+=(f"\nTương đương {display(result['standard_lot'])} lot chuẩn. Mô hình Exness Cent: 1 cent lot = 0,01 lot chuẩn; bước 0,01 cent lot."
+               '\nGiá tham chiếu XAUUSD; chưa có giá/spread XAUUSDc riêng. Đối chiếu quy cách và giá trên tài khoản Cent trước khi vào lệnh.')
     return text,result

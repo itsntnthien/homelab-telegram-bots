@@ -82,7 +82,7 @@ Do not set parity flags to true merely to enable this mode; these are separate c
 
 ## Personal lot estimates
 
-Trading recipients can configure personalized signal sizing with `/von 1000` and `/ruiro 1%` (or `/ruiro 10usd`) in their own private chats after the feature is deployed. See [personal lot estimates](personal-lot.md) for scope, manual capital updates, cost limits and schema rollback. These commands do not configure the separate homelab control bot.
+Trading recipients configure sizing using the **💰 Vốn & rủi ro** button, account-type buttons (USD/Exness Cent), balance button and percentage/fixed-risk buttons. They type only numbers when prompted. See [personal lot estimates](personal-lot.md) for the Cent reference model, manual balances, cost limits and rollback restrictions. This feature belongs to the trading bot.
 
 ## Control bot
 
