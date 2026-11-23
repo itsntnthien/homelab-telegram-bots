@@ -1,10 +1,14 @@
 import json
+import io
+import os
 import sqlite3
 import tempfile
 import unittest
+from unittest.mock import Mock,patch
 from pathlib import Path
 from datetime import datetime,timezone,timedelta
 from exness_collector import connect,accept,schedule
+import exness_collector
 
 
 class ExnessCollectorTest(unittest.TestCase):
@@ -49,3 +53,49 @@ class ExnessCollectorTest(unittest.TestCase):
         e=self.quote(self.now);e['receivedAt']-=31000
         with self.assertRaises(ValueError):accept(self.db,e)
         self.assertEqual(self.db.execute('SELECT COUNT(*) FROM tick_events').fetchone()[0],0)
+
+    def conditions(self,start='Mon, 23:00:30',end='Mon, 23:59:59'):
+        return dict(instrument='XAUUSD',point_digits=3,trade_sessions=[
+            dict(trade_mode='enabled',week_start_time=start,week_end_time=end)])
+
+    def test_session_formats_are_equivalent(self):
+        observed=datetime(2026,11,18,tzinfo=timezone.utc)
+        expected=schedule(self.conditions(),observed)
+        for start,end in [('Mon 23:00:30','Mon 23:59:59'),
+                          (' Mon,23:00:30 ',' Mon , 23:59:59 '),
+                          ('Mon\t23:00:30','Mon  23:59:59')]:
+            with self.subTest(start=start):
+                self.assertEqual(schedule(self.conditions(start,end),observed),expected)
+
+    def test_session_rejects_bad_boundaries(self):
+        for value in (None,123,'','Monday 23:00:30','Mon 24:00:00','Mon 23:60:00',
+                      'Mon 23:00:60','Mon 3:00:30','Mon 23:00:30 trailing'):
+            for field in ('week_start_time','week_end_time'):
+                with self.subTest(value=value,field=field):
+                    c=self.conditions();c['trade_sessions'][0][field]=value
+                    with self.assertRaises(ValueError):schedule(c)
+        c=self.conditions();del c['trade_sessions'][0]['week_start_time']
+        with self.assertRaises(ValueError):schedule(c)
+
+    def test_invalid_metadata_preserves_last_valid_calendar(self):
+        accept(self.db,dict(type='metadata',receivedAt=self.received,conditions=self.conditions()))
+        before=list(self.db.execute('SELECT key,value FROM market_meta ORDER BY key'))
+        with self.assertRaises(ValueError):
+            accept(self.db,dict(type='metadata',receivedAt=self.received,
+                                conditions=self.conditions('Mon 24:00:00')))
+        self.assertEqual(list(self.db.execute('SELECT key,value FROM market_meta ORDER BY key')),before)
+
+    def test_invalid_schedule_stops_collector_and_terminates_transport(self):
+        event=dict(type='metadata',receivedAt=self.received,conditions=self.conditions('invalid'))
+        process=Mock(stdout=io.StringIO(json.dumps(event)+'\n'))
+        process.poll.return_value=None
+        with tempfile.TemporaryDirectory() as folder:
+            target=Path(folder)/'market-exness.db'
+            env={'EXNESS_MARKET_DB':str(target),'EXNESS_TRANSPORT_COMMAND':'["synthetic-transport"]'}
+            with patch.dict(os.environ,env),patch.object(exness_collector.subprocess,'Popen',return_value=process), \
+                 patch.object(exness_collector.signal,'signal'),patch('sys.stdout',new_callable=io.StringIO) as output:
+                self.assertEqual(exness_collector.main(),78)
+            self.assertEqual(json.loads(output.getvalue()),dict(type='status',state='blocked',code='INVALID_SCHEDULE'))
+            process.terminate.assert_called_once_with()
+            process.wait.assert_called_once_with(timeout=10)
+            self.assertFalse((Path(folder)/'exness-schedule.json').exists())

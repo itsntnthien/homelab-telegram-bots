@@ -5,6 +5,6 @@
   "description": "Read-only market data transport for the XAUUSD Telegram signal bot",
   "type": "module",
   "engines": { "node": ">=22" },
-  "scripts": { "test": "node --test test_exness_signer.mjs" },
+  "scripts": { "test": "node --test test_exness_signer.mjs test_exness_sessions.mjs" },
   "dependencies": { "ws": "8.23.0" }
 }

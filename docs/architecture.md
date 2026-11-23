@@ -8,6 +8,8 @@ The trading bot and control bot share a repository for review and testing. They 
 
 `exness_transport.mjs` signs read-only GET requests with Ed25519 and subscribes to quotes over WebSocket. Host validation restricts credentials to the expected broker domains. The Python collector validates candle ordering, geometry and timestamps before committing data. `tick_journal.py` provides an ordered stream that the engine resumes by cursor.
 
+`exness_sessions.mjs` validates broker UTC session boundaries before metadata is forwarded or stale-socket checks run. Both transport and collector accept comma-separated and whitespace-separated day/time formats. Invalid enabled schedules block collection with `INVALID_SCHEDULE` and exit code 78; the collector terminates its transport and retains the last valid saved calendar. Valid broker end times remain inclusive by representing intervals internally with an exclusive end one second later.
+
 `intraday_live.py` combines the CURRENT, Q100 and SCALP strategies under one position owner. M5/M30 bars drive setups; M15/H1 provide context. It stores indicator state, pending setups, active modeled positions and cursor progress. Transactions keep a committed event consistent with its saved state. Config hashes prevent silently resuming incompatible engine state.
 
 The supplied configuration is the deployed experimental release, not a claim of a profitable strategy. Compatibility modules are included where the active bot imports them; older standalone collectors and services are omitted. The frozen Pine file is a source fingerprint fixture, not evidence of verified TradingView parity.
@@ -41,3 +43,4 @@ SQLite and systemd suit a single-host homelab with one owner per state file. Thi
 - Recorded original file hashes in `source-provenance.json`; production credentials and databases were never copied into the package.
 - Kept two frozen historical engine fixtures and changed their test paths to repository-local files, so regression comparisons work after cloning.
 - Normalize ordinary text to LF in Git while preserving exact Pine bytes. Provenance records both raw and newline-normalized hashes.
+- On 2026-11-23, synchronized the two updated Exness collector/transport files and the new session helper from the running server. Provenance retains previous source hashes and the sync timestamp; strategy and administration code are unchanged by this follow-up.

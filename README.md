@@ -84,7 +84,7 @@ Start with [`intraday_live.py`](apps/trading-bot/intraday_live.py) for signal pr
 
 See [operations](docs/operations.md) for configuration, shadow mode, credentials, service installation and recovery. The supplied trading configuration defaults to **shadow processing with Telegram disabled**. Real operation requires an authorized broker connection and separate bot tokens.
 
-The current trading release remains experimental: Pine parity, profitability and a continuous availability SLO have not been established. At the source capture on **2026-11-23**, both bot processes were active, but the configured market collector had failed and trading readiness reported `STALE_FEED`. Packaging preserved this evidence; it did not repair or redeploy production. See [validation](docs/validation.md).
+The current trading release remains experimental: Pine parity, profitability and a continuous availability SLO have not been established. At the initial source capture on **2026-11-23**, the collector had failed with `STALE_FEED`. A read-only recheck at **13:45 Vietnam time** confirmed fresh quotes and ready M5/M15/M30/H1 frames; overall readiness still reported `DELIVERY_UNKNOWN`. The repository now includes the collector's updated session parsing and validation. Feed recovery does not by itself prove new signal delivery. No production service was changed by this repository sync. See [validation](docs/validation.md).
 
 ## Further reading
 

@@ -2,6 +2,7 @@
 import json
 import math
 import os
+import re
 from pathlib import Path
 import signal
 import sqlite3
@@ -36,7 +37,9 @@ def schedule(conditions, observed=None):
     if conditions.get('instrument')!='XAUUSD' or conditions.get('point_digits')!=3:
         raise ValueError('instrument metadata mismatch')
     def second(value):
-        day,clock=value.split(', ');h,m,s=map(int,clock.split(':'))
+        match=re.fullmatch(r'(Sun|Mon|Tue|Wed|Thu|Fri|Sat)(?:\s*,\s*|\s+)(\d{2}):(\d{2}):(\d{2})',value.strip()) if isinstance(value,str) else None
+        if not match:raise ValueError('invalid session boundary')
+        day=match[1];h,m,s=map(int,match.groups()[1:])
         if not (0<=h<24 and 0<=m<60 and 0<=s<60):raise ValueError('invalid session')
         return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].index(day)*86400+h*3600+m*60+s
     observed=observed or datetime.now(timezone.utc)
@@ -47,7 +50,7 @@ def schedule(conditions, observed=None):
     intervals=[]
     for item in conditions['trade_sessions']:
         if item['trade_mode']!='enabled':continue
-        start,end=second(item['week_start_time']),second(item['week_end_time'])+1
+        start,end=second(item.get('week_start_time')),second(item.get('week_end_time'))+1
         if not 0<=start<end<=604800:raise ValueError('invalid session')
         local_start,local_end=local_second(start),local_second(end)
         if local_end<=local_start:raise ValueError('unsupported week-wrapping session')
@@ -108,7 +111,13 @@ def main():
     signal.signal(signal.SIGTERM,stop)
     try:
         for line in proc.stdout:
-            event=json.loads(line);accept(db,event)
+            event=json.loads(line)
+            try:accept(db,event)
+            except (ValueError,KeyError,TypeError):
+                if event.get('type')!='metadata':raise
+                # Invalid calendars must block collection, not trigger an endless crash loop.
+                print(json.dumps(dict(type='status',state='blocked',code='INVALID_SCHEDULE')),flush=True)
+                return 78
             if event['type']=='metadata':
                 p=path.with_name('exness-schedule.json');tmp=p.with_suffix('.tmp')
                 tmp.write_text(json.dumps(schedule(event['conditions']),indent=2),encoding='utf-8');tmp.replace(p)

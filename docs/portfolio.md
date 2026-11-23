@@ -16,7 +16,7 @@ Add the public GitHub URL after publication. Use the verified test count from `v
 2. Explain the diagram in the root README and why the two bot processes have separate tokens and state.
 3. Walk through the transaction and event-key design in `trades.py`, then the send-time checks in `delivery.py`.
 4. Show the control bot's allowlist and chat-bound confirmation tests.
-5. Discuss the source-capture incident: the signal process was alive while the feed was stale. Readiness exposed the distinction. Do not present this as an incident that this packaging task repaired.
+5. Discuss the source-capture incident: the signal process was alive while the feed was stale. A later check confirmed quote/frame recovery while uncertain delivery still kept overall readiness degraded. The repository sync imported the running collector's session-parser changes and added regression coverage; it did not perform the production recovery.
 6. Describe what would justify moving beyond one Linux host and SQLite, rather than adding infrastructure preemptively.
 
 ## Suggested GitHub metadata

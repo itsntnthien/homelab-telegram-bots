@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import WebSocket from 'ws';
 import {headers,host,loadKey} from './exness_signer.mjs';
+import {enabledSessions} from './exness_sessions.mjs';
 const emit=e=>process.stdout.write(JSON.stringify({...e,receivedAt:Date.now()})+'\n');
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const frames={m1:60,m3:180,m5:300,m15:900,m30:1800,h1:3600};
@@ -28,6 +29,7 @@ while(!stopped){
   const discovery=await get(cfg.gatewayUrl,'/v1/trading/access-point?account_id='+account),base=host(discovery.access_point);
   const conditions=await get(base,'/v1/configuration/accounts/'+account+'/instruments/XAUUSD/conditions');
   if(conditions.instrument!=='XAUUSD'||conditions.point_digits!==3)throw Error('INSTRUMENT_MISMATCH');
+  const sessions=enabledSessions(conditions);
   emit({type:'metadata',conditions});
   const limits=await get(base,'/v1/configuration/accounts/'+account+'/limits');
   const cap=limits.limits?.rest?.methods?.find(x=>x.api_operation_id==='getCandleHistory')?.limits?.max_candles_per_request;
@@ -65,8 +67,7 @@ while(!stopped){
      }
      // Closed sessions may be silent; an open stale socket is reauthenticated.
      const now=new Date(),week=now.getUTCDay()*86400+now.getUTCHours()*3600+now.getUTCMinutes()*60+now.getUTCSeconds();
-     const second=s=>{const [day,t]=s.split(', ');return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(day)*86400+t.split(':').reduce((a,n)=>a*60+Number(n),0);};
-     const open=conditions.trade_sessions.some(s=>s.trade_mode==='enabled'&&second(s.week_start_time)<=week&&week<=second(s.week_end_time));
+     const open=sessions.some(([start,end])=>start<=week&&week<end);
      if(open&&Date.now()-last>60000)finish(Error('STALE_SOCKET'));
     }catch(e){
      if(e.message==='HTTP_429')emit({type:'status',state:'history_rate_limited'});
@@ -87,8 +88,8 @@ while(!stopped){
    socket.on('close',()=>finish(stopped?null:Error('DISCONNECTED')));
   });
  }catch(e){
-  const code=/^(HTTP_\d+|INSTRUMENT_MISMATCH|INVALID_LIMITS|EMPTY_HISTORY|PAGINATION_STALLED|STALE_SOCKET|SUBSCRIPTION_REJECTED|INVALID_FRAME|NETWORK|DISCONNECTED)$/.test(e.message)?e.message:'TRANSPORT_ERROR';
-  const blocked=['HTTP_401','HTTP_403','INSTRUMENT_MISMATCH','SUBSCRIPTION_REJECTED'].includes(code);
+  const code=/^(HTTP_\d+|INSTRUMENT_MISMATCH|INVALID_SCHEDULE|INVALID_LIMITS|EMPTY_HISTORY|PAGINATION_STALLED|STALE_SOCKET|SUBSCRIPTION_REJECTED|INVALID_FRAME|NETWORK|DISCONNECTED)$/.test(e.message)?e.message:'TRANSPORT_ERROR';
+  const blocked=['HTTP_401','HTTP_403','INSTRUMENT_MISMATCH','INVALID_SCHEDULE','SUBSCRIPTION_REJECTED'].includes(code);
   emit({type:'status',state:blocked?'blocked':'reconnecting',code});
   if(blocked){process.exitCode=78;break;}
   if(!stopped){await sleep(backoff);backoff=Math.min(60000,backoff*2);}

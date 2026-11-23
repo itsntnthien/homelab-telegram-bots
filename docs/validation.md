@@ -6,16 +6,16 @@ Checked on **2026-11-23**. These results describe the packaged repository and a 
 
 | Check | Result |
 | --- | --- |
-| Trading Python suite | **221 passed** on Windows/Python 3.13 and isolated Linux/Python 3.14. |
+| Trading Python suite | **225 passed** on Windows/Python 3.13 and isolated Linux/Python 3.14. |
 | Control Python suite | **7 passed** on Linux, plus the existing command self-test. Host-changing commands and Telegram calls are mocked. |
-| Node signer tests | **3 passed** on Node 24, using ephemeral keys and no broker connection. |
+| Node signer/session tests | **8 passed** on Node 24, using ephemeral keys and synthetic calendar data with no broker connection. |
 | Transport syntax | `node --check exness_transport.mjs` passed. |
 | Offline demo | Passed: deduplication, pending state after reopen, and `UNKNOWN` suppression. |
 | Python dependencies | Installed from the pinned manifest into a fresh Linux virtual environment. |
 | npm dependencies | Lockfile generated; install/audit reported zero known vulnerabilities at verification time. This is not a broader security audit. |
 | Package checks | Passed known secret-pattern/file checks, Python import declaration checks and frozen Pine fingerprint validation. |
 
-Total: **231 passing automated test cases on Linux**, plus self-test, demo and package checks. Windows deliberately skips Linux control tests. The GitHub Actions workflow is prepared for Python 3.13/3.14; no hosted workflow result is claimed before publication.
+Total after the collector sync: **240 passing automated test cases on Linux**, plus self-test, demo and package checks. Windows deliberately skips Linux control tests. The initial 231-test package passed [hosted CI on Python 3.13/3.14](https://github.com/itsntnthien/homelab-telegram-bots/actions/runs/45125355051). See the [workflow runs](https://github.com/itsntnthien/homelab-telegram-bots/actions) for the result corresponding to the current commit.
 
 Linux verification ran from an isolated temporary copy using a fresh virtual environment. Node tests ran in an existing Node 24 container with networking disabled. No production database, Telegram token or broker credential was passed to the tests. The two regression comparisons retain independent historical engine fixtures; they were not removed or replaced with self-comparisons to make packaging pass.
 
@@ -36,6 +36,18 @@ da1d22e744aa4fee876d696a7bc5def4e795dabbac1a0feaa1712651f009f1c7
 ```
 
 The configured market collector was failed. Trading health reported `alive=true`, `ready=false`, `STALE_FEED` and uncertain-delivery degradation. Therefore this repository says **deployed**, not continuously healthy or production-certified. Packaging did not restart services, fix broker access, resend messages or change production configuration.
+
+## Feed recovery and collector sync
+
+A read-only recheck on **2026-11-23 at 13:45 Vietnam time** found that the collector had been running since 13:37. Quote age was about 0.8 seconds with no queued ticks; M5/M15/M30/H1 were ready and M5/M15 checkpoints advanced during observation. `STALE_FEED` was absent. Overall readiness remained false with `DELIVERY_UNKNOWN` (38 stored uncertain notifications).
+
+This confirms market-data recovery, not a new trading signal or phone delivery. At that check, no new signal had been persisted after recovery and no new notification had been queued in the preceding two hours.
+
+Compared with the initial snapshot, 63 of 65 recorded service source files were unchanged. `exness_collector.py` and `exness_transport.mjs` had changed and `exness_sessions.mjs` had been added. These three files were copied from the running service into this repository; original/updated hashes and the sync timestamp are recorded in `source-provenance.json`. Engine configuration and control-bot behavior are unchanged.
+
+The added regression cases cover alternate session formatting, invalid or missing boundaries, inclusive session ends, disabled sessions, invalid-calendar rollback and transport termination on a blocked schedule. Before the sync, the alternate-format test reproduced a `ValueError` in the original parser. The captured live calendar happened to use a format both versions could parse, so these checks do not attribute the production outage or recovery exclusively to the parser change.
+
+The example market service also adopts the running service's `RestartPreventExitStatus=78` so blocked configuration errors do not trigger automatic restart loops.
 
 ## Scope and limits
 

@@ -24,8 +24,10 @@
     },
     "apps/trading-bot/exness_collector.py": {
       "origin": "configured-market-collector",
-      "source_sha256": "68e8d091d65ac1db9afb7fcdde941af9b44a7e6f2f3053af37f625367fdc252c",
-      "normalized_source_sha256": "1fc8d9d20ea7585e0575c3202e461d428344618a46ec033c2a23e4dd4570957d"
+      "source_sha256": "fb7d6cc4937c7f629c6a54049b221166d1d80a290d8493bb8618f28706552ed3",
+      "normalized_source_sha256": "4492dbea02ab8ed174e1fc969a860d9350cd78069c2cb00c2fc587ada49cb3f1",
+      "previous_source_sha256": "68e8d091d65ac1db9afb7fcdde941af9b44a7e6f2f3053af37f625367fdc252c",
+      "synced_at": "2026-11-23T13:47:52.548542+07:00"
     },
     "apps/trading-bot/hybrid_research.py": {
       "origin": "running-trading-release",
@@ -314,8 +316,10 @@
     },
     "apps/trading-bot/exness_transport.mjs": {
       "origin": "configured-market-collector",
-      "source_sha256": "a23468e9244d5352891e1e563048f948da8a76a8ed60aa8410ab796dcc3d7686",
-      "normalized_source_sha256": "ca8c256ec39fac224dc6e055f692723cec2513a6b7bd972a5284a5f7a2263e4a"
+      "source_sha256": "6c003d7f52456acee3288870d88a7a5f3aa49454ec11e11f667fd8374451fc54",
+      "normalized_source_sha256": "44861a20e22513fde356d137a6c19a6f17cb1e2d279976617a48b1217b312d27",
+      "previous_source_sha256": "a23468e9244d5352891e1e563048f948da8a76a8ed60aa8410ab796dcc3d7686",
+      "synced_at": "2026-11-23T13:47:52.548542+07:00"
     },
     "apps/trading-bot/exness_signer.mjs": {
       "origin": "configured-market-collector",
@@ -336,6 +340,12 @@
       "origin": "frozen-regression-baseline-chart-overlay-20261119",
       "source_sha256": "b3a9d4bb4e69d7dab1693b07881688af879358dafaf91bf411d879e217b02efa",
       "normalized_source_sha256": "6d0229464b37906fd49112f47bc2e7f2fa3afa2da0ff2e801f5188de9f54ab75"
+    },
+    "apps/trading-bot/exness_sessions.mjs": {
+      "origin": "configured-market-collector",
+      "source_sha256": "a3fb03fffb2e35f9d8743216ba0febd3fde355221c875a7371dcdfc2758b55bc",
+      "normalized_source_sha256": "a3fb03fffb2e35f9d8743216ba0febd3fde355221c875a7371dcdfc2758b55bc",
+      "synced_at": "2026-11-23T13:47:52.548542+07:00"
     }
   }
 }

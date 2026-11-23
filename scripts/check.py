@@ -34,7 +34,7 @@ def main():
         if not node:
             raise SystemExit('Node.js 22+ is required for transport tests')
         commands += [([node, '--check', 'exness_transport.mjs'], ROOT/'apps/trading-bot'),
-                     ([node, '--test', 'test_exness_signer.mjs'], ROOT/'apps/trading-bot'),
+                     ([node, '--test', 'test_exness_signer.mjs', 'test_exness_sessions.mjs'], ROOT/'apps/trading-bot'),
                      ([sys.executable, 'scripts/demo.py'], ROOT),
                      ([sys.executable, 'scripts/verify_package.py'], ROOT)]
         for command, cwd in commands:

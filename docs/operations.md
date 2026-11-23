@@ -57,6 +57,8 @@ journalctl --user -u homelab-market.service -n 30 --no-pager
 
 Wait for the collector to create and populate `apps/trading-bot/state/market-exness.db` and `exness-schedule.json`. The engine needs warmup history and current quotes; the presence of a file alone does not establish readiness.
 
+The market service uses `RestartPreventExitStatus=78`, matching the running source service. A blocked authentication, subscription or schedule error requires operator correction and an explicit service start rather than an endless restart loop. Inspect `INVALID_SCHEDULE` status before restarting; do not bypass calendar validation.
+
 ```bash
 systemctl --user start homelab-trading.service
 curl --fail http://127.0.0.1:18766/health
