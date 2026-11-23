@@ -82,7 +82,7 @@ def rich_text(text):
     lines=text.splitlines();out=[]
     for i,line in enumerate(lines):
         safe=html.escape(line)
-        if i==0 or line.startswith(('GIÁ THAM CHIẾU','THÔNG TIN TÍN HIỆU','KẾT QUẢ MÔ PHỎNG','ĐÃ BỎ LỠ','ĐỐI SOÁT')):
+        if i==0 or line.startswith(('GIÁ THAM CHIẾU','THÔNG TIN TÍN HIỆU','KẾT QUẢ MÔ PHỎNG','ĐÃ BỎ LỠ','ĐỐI SOÁT','💰 KHỐI LƯỢNG CỦA BẠN','Lot tham khảo:')):
             safe='<b>'+safe+'</b>'
         elif re.fullmatch(r'(Entry|SL|TP): [0-9]+[.][0-9]+',line):
             label,value=line.split(': ',1);safe='<b>'+label+'</b>  <code>'+value+'</code>'

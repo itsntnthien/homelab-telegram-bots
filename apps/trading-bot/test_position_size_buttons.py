@@ -69,6 +69,22 @@ class AccountButtons(unittest.TestCase):
         with self.assertRaises(ValueError):sizing.calculate(dict(p,cent_spec=None),SPEC,100,95,1)
         with self.assertRaises(ValueError):sizing.calculate(p,dict(SPEC,contract_size='1'),100,95,1)
 
+    def test_display_separates_budget_from_rounded_loss_without_changing_math(self):
+        from telegram_views import rich_text
+        config=dict(sizing_profile=prefs(),sizing_spec=SPEC,sl=3595,direction=1,slippage='.02',commission=0)
+        text,result=sizing.annotation(config,dict(price=3600),'100')
+        self.assertEqual(Decimal(result['estimated_risk_usd']),Decimal('5.04'))
+        self.assertIn('Ngân sách rủi ro: 10 USD/lệnh',text)
+        self.assertIn('Lỗ ước tính tại SL: ≈ 5.04 USD',text)
+        self.assertIn('<b>Lot tham khảo: 0.01 lot chuẩn (XAUUSD)</b>',rich_text(text))
+        self.assertEqual(sizing.estimated_money_text('0.000001','usd'),'< 0.01 USD')
+        self.assertEqual(sizing.estimated_money_text('1.2345678','cent'),'≈ 123.46 USC (Cent)')
+        cent=dict(prefs(),account_type='cent',cent_spec=dict(sizing.CENT_SPEC))
+        text,result=sizing.annotation(dict(config,sizing_profile=cent),dict(price=3600),'100')
+        self.assertEqual(result['lot'],'1.98')
+        self.assertEqual(Decimal(result['estimated_risk_usd']),Decimal('9.9792'))
+        self.assertIn('Lỗ ước tính tại SL: ≈ 997.92 USC (Cent)',text)
+
     def test_pending_input_survives_restart_and_validation_is_atomic(self):
         for text in (sizing.CENT,sizing.CAPITAL):interact(self,text)
         self.store.close();self.store=TradeStore(self.path);self.addCleanup(self.store.close)

@@ -40,6 +40,8 @@ lots = floor_to_volume_step(min(budget_usd / risk_per_lot, volume_max))
 
 USD uses validated collector contract/min/max/step metadata. Cent uses the explicit versioned reference model above, and floors on the cent-lot grid before calculating the standard-lot equivalent. A budget below the minimum lot's modeled risk produces an explanation instead of rounding up. Unknown account types, incomplete settings and invalid specifications do not produce guessed lots.
 
+The signal emphasizes the lot and labels the risk budget separately from estimated loss at SL: flooring lot size can make the latter smaller. Estimated monetary loss displays approximately to two decimals; a positive amount that would round to zero displays as less than 0.01 in the selected currency. The audit calculation retains its full Decimal precision.
+
 The checked bid/ask already includes its source spread; it is not added twice. Fees and slippage beyond the model, market gaps and the actual execution price can exceed the displayed estimate. Equal real capital and risk have equal modeled loss budgets across account types, though their different volume grids can produce different rounded exposure.
 
 Capital, risk, account type and the Cent model (if selected) are snapshotted per recipient when a new entry is queued. Delivery calculates volume from the freshly checked quote and signal SL. Later settings changes do not rewrite queued or historical notifications. Old queued profiles with no account type retain USD behavior. Existing notifications with no sizing metadata retain their old behavior.

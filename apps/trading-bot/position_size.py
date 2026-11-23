@@ -1,6 +1,6 @@
 """Private button-driven USD/USC accounts and indicative gold sizing; no orders."""
 from datetime import datetime, timezone
-from decimal import Decimal, InvalidOperation, ROUND_FLOOR
+from decimal import Decimal, InvalidOperation, ROUND_FLOOR, ROUND_HALF_UP
 import json
 import re
 
@@ -73,6 +73,13 @@ def keyboard(pending=None):
 
 def money_text(value, account):
     return display(Decimal(str(value))*100)+' USC (Cent)' if account=='cent' else display(value)+' USD'
+
+
+def estimated_money_text(value, account):
+    amount=Decimal(str(value))*(100 if account=='cent' else 1)
+    unit='USC (Cent)' if account=='cent' else 'USD'
+    rounded=amount.quantize(Decimal('0.01'),rounding=ROUND_HALF_UP)
+    return ('< 0.01' if amount>0 and rounded==0 else '≈ '+format(rounded,'f'))+' '+unit
 
 
 def save(store, chat_id, field, value, *, account='usd'):
@@ -244,13 +251,14 @@ def annotation(config, check, chat_id):
     label='cent lot (XAUUSDc)' if account=='cent' else 'lot chuẩn (XAUUSD)'
     if result['state']=='BELOW_MINIMUM':
         return (f"\n\nLot: không đủ ngân sách rủi ro cho mức tối thiểu {display(result['minimum_lot'])} {label}."
-                f"\nNgân sách {money_text(result['budget_usd'],account)}; lot tối thiểu cần khoảng {money_text(result['minimum_risk_usd'],account)} tại SL."
+                f"\nNgân sách {money_text(result['budget_usd'],account)}; lot tối thiểu cần {estimated_money_text(result['minimum_risk_usd'],account)} tại SL."
                 '\nKhông tự nâng lot.',result)
     risk=display(p['risk_value'])+'%' if p['risk_mode']=='percent' else money_text(p['risk_value'],account)
-    text=(f"\n\nLot tham khảo của bạn: {result['lot']} {label}"
+    text=(f"\n\n💰 KHỐI LƯỢNG CỦA BẠN\nLot tham khảo: {result['lot']} {label}"
           f"\nVốn {money_text(p['capital_usd'],account)} · rủi ro chọn {risk}"
-          f"\nLỗ ước tính tại SL: {money_text(result['estimated_risk_usd'],account)} / {money_text(result['budget_usd'],account)}"
-          '\nTheo giá kiểm tra và SL; làm tròn xuống. Có dự phòng trượt giá theo engine; chưa gồm phí riêng của tài khoản/ký quỹ. Giá gap có thể làm lỗ vượt ước tính.')
+          f"\nNgân sách rủi ro: {money_text(result['budget_usd'],account)}/lệnh"
+          f"\nLỗ ước tính tại SL: {estimated_money_text(result['estimated_risk_usd'],account)}"
+          '\nLot đã làm tròn xuống, tính từ giá kiểm tra đến SL. Có dự phòng trượt giá; chưa kiểm tra phí riêng/ký quỹ. Gap có thể làm lỗ vượt ước tính.')
     if account=='cent':
         text+=(f"\nTương đương {display(result['standard_lot'])} lot chuẩn. Mô hình Exness Cent: 1 cent lot = 0,01 lot chuẩn; bước 0,01 cent lot."
                '\nGiá tham chiếu XAUUSD; chưa có giá/spread XAUUSDc riêng. Đối chiếu quy cách và giá trên tài khoản Cent trước khi vào lệnh.')
