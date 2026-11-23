@@ -80,6 +80,12 @@ To configure an isolated live instance, stop its shadow service, use separate li
 
 Do not set parity flags to true merely to enable this mode; these are separate claims. Existing populated state may require the guarded migration helpers. Do not start this copy against an existing live token, database or `/tmp/xauusd-bot.lock` owner. The legacy release's fixed live lock intentionally limits it to one live instance per host.
 
+## Filter history by date
+
+Open **📋 Lịch sử** and choose **Hôm nay**, **Hôm qua**, or **📅 Chọn ngày**. The calendar uses month-navigation and day buttons; no typed date or command is needed. **Tất cả** removes the filter. Pagination retains the selected day.
+
+Dates refer to the signal's entry/creation date in **Asia/Ho_Chi_Minh**, from local midnight inclusive to the next midnight exclusive. A trade opened on one day and closed on another belongs to its opening day. Empty dates say no matching trades; closed, open, missed and uncertain-delivery records keep their existing labels. Results remain scoped to the requesting recipient. Existing history pagination links continue to work. The filter performs read-only queries and does not change trade state or saved preferences.
+
 ## Personal lot estimates
 
 Trading recipients configure sizing using the **💰 Vốn & rủi ro** button, account-type buttons (USD/Exness Cent), balance button and percentage/fixed-risk buttons. They type only numbers when prompted. See [personal lot estimates](personal-lot.md) for the Cent reference model, manual balances, cost limits and rollback restrictions. This feature belongs to the trading bot.

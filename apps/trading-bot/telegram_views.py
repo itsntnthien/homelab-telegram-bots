@@ -1,5 +1,7 @@
 """Read-only Telegram projections, separate from engine and delivery state."""
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
+import calendar
+import re
 from zoneinfo import ZoneInfo
 from trades import MODEL_NAMES
 
@@ -37,17 +39,73 @@ def health(snapshot,metrics,workers):
     return result
 
 
-def history(db,chat,page,opened=False):
+def history_day(day):
+    if not re.fullmatch(r'[0-9]{4}-[0-9]{2}-[0-9]{2}',day):
+        raise ValueError('Ngày không hợp lệ')
+    chosen=date.fromisoformat(day)
+    # Keep the next-day UTC boundary representable, including malformed callbacks.
+    if not 1970<=chosen.year<=9998: raise ValueError('Ngày ngoài phạm vi hỗ trợ')
+    start=datetime.combine(chosen,datetime.min.time(),ZoneInfo('Asia/Ho_Chi_Minh'))
+    return chosen,start.astimezone(timezone.utc).isoformat(),(start+timedelta(days=1)).astimezone(timezone.utc).isoformat()
+
+
+def history_filters(day=None,now=None):
+    today=(now or datetime.now(timezone.utc)).astimezone(ZoneInfo('Asia/Ho_Chi_Minh')).date()
+    month=(history_day(day)[0] if day else today).strftime('%Y-%m')
+    return [[{'text':'Hôm nay','callback_data':f'histdate:{today.isoformat()}:1'},
+             {'text':'Hôm qua','callback_data':f'histdate:{(today-timedelta(days=1)).isoformat()}:1'}],
+            [{'text':'📅 Chọn ngày','callback_data':'histcal:'+month},{'text':'Tất cả','callback_data':'hist:1'}]]
+
+
+def history_calendar(month):
+    chosen,_,_=history_day(month+'-01')
+    rows=[[{'text':name,'callback_data':'histnoop'} for name in ('T2','T3','T4','T5','T6','T7','CN')]]
+    for week in calendar.monthcalendar(chosen.year,chosen.month):
+        rows.append([{'text':str(day) if day else '·',
+                      'callback_data':f'histdate:{month}-{day:02d}:1' if day else 'histnoop'} for day in week])
+    navigation=[]
+    if chosen>date(1970,1,1):
+        navigation.append({'text':'◀ Tháng trước','callback_data':'histcal:'+(chosen-timedelta(days=1)).strftime('%Y-%m')})
+    if chosen<date(9998,12,1):
+        after=(chosen+timedelta(days=32)).replace(day=1)
+        navigation.append({'text':'Tháng sau ▶','callback_data':'histcal:'+after.strftime('%Y-%m')})
+    rows.append(navigation)
+    rows.extend(history_filters())
+    return (f'📅 CHỌN NGÀY — {chosen.month:02d}/{chosen.year}\nBấm một ngày để xem các lệnh phát trong ngày đó, theo giờ Việt Nam.',
+            {'inline_keyboard':rows})
+
+
+def history_action(data):
+    if data=='histnoop': return 'noop',None,None
+    if data.startswith('histcal:'):
+        month=data.removeprefix('histcal:')
+        history_day(month+'-01')
+        return 'calendar',month,None
+    match=re.fullmatch(r'histdate:([0-9]{4}-[0-9]{2}-[0-9]{2}):([0-9]{1,6})',data)
+    if not match or not 1<=int(match[2])<=100000: raise ValueError('Ngày/trang không hợp lệ')
+    history_day(match[1])
+    return 'date',match[1],int(match[2])
+
+
+def history(db,chat,page,opened=False,day=None):
     offset=(page-1)*10
+    where=" AND t.status='OPEN'" if opened else ''
+    args=[str(chat)]
+    if day:
+        chosen,start,end=history_day(day)
+        where+=' AND t.created_at>=? AND t.created_at<?'
+        args.extend((start,end))
+    args.append(offset)
     rows=db.execute("""SELECT t.*,u.number AS user_number,
         (SELECT n.state FROM notifications n WHERE n.event_key='open:'||u.chat_id||':'||t.event_key) AS delivery_state
         FROM user_signals u JOIN trades t ON t.id=u.trade_id WHERE u.chat_id=?"""+
-        (" AND t.status='OPEN'" if opened else '')+' ORDER BY t.id DESC LIMIT 11 OFFSET ?', (str(chat),offset)).fetchall()
+        where+' ORDER BY t.id DESC LIMIT 11 OFFSET ?', args).fetchall()
     columns=[r[0] for r in db.execute('SELECT * FROM trades LIMIT 0').description]
     # Accept both ordinary sqlite connections and row-factory connections.
     values=[dict(zip(columns+['user_number','delivery_state'],tuple(r))) for r in rows]
     title='LỆNH MÔ PHỎNG ĐANG MỞ' if opened else 'LỊCH SỬ TÍN HIỆU'
     lines=[f'{title} — Trang {page} · giờ VN']
+    if day: lines.append('Ngày phát lệnh: '+chosen.strftime('%d/%m/%Y')+' · 00:00–23:59 giờ Việt Nam')
     now=datetime.now(timezone.utc).timestamp()
     for r in values[:10]:
         label={'EXPIRED':'ĐÃ BỎ LỠ','SUPPRESSED':'KHÔNG GỬI','UNKNOWN':'CHƯA XÁC MINH','SENT':'API ĐÃ XÁC NHẬN'}.get(r['delivery_state'],r['delivery_state'] or 'KHÔNG XÁC ĐỊNH')

@@ -357,11 +357,12 @@ class Telegram:
             row.append({"text": "Sau ▶", "callback_data": f"{prefix}:{page + 1}"})
         return {"inline_keyboard": [row, [{"text": "🏠 Trang chính", "callback_data": "home"}]]} if row else {"inline_keyboard": [[{"text": "🏠 Trang chính", "callback_data": "home"}]]}
 
-    def history_page(self, db, chat_id, page, edit_message_id=None):
+    def history_page(self, db, chat_id, page, edit_message_id=None, day=None):
         if signal_engine_mode().startswith('intraday-'):
-            from telegram_views import history
-            page=max(1,int(page));text,has_next=history(db,chat_id,page,opened=False)
-            markup=self.page_markup(page,has_next,"hist")
+            from telegram_views import history,history_filters
+            page=max(1,int(page));text,has_next=history(db,chat_id,page,opened=False,day=day)
+            markup=self.page_markup(page,has_next,'histdate:'+day if day else 'hist')
+            markup['inline_keyboard']=history_filters(day)+markup['inline_keyboard']
             if edit_message_id:
                 self.call('editMessageText',{'chat_id':chat_id,'message_id':edit_message_id,'text':text,'reply_markup':json.dumps(markup)})
             else: self.send_to(chat_id,text,markup)
@@ -384,6 +385,24 @@ class Telegram:
             self.call("editMessageText", {"chat_id": chat_id, "message_id": edit_message_id, "text": "\n".join(text), "reply_markup": json.dumps(markup)})
         else:
             self.send_to(chat_id, "\n".join(text), markup)
+
+    def history_filter(self, db, chat, item):
+        from telegram_views import history_action,history_calendar
+        if chat.get('type')!='private' or str(item.get('from',{}).get('id'))!=str(chat['id']):
+            self.call('answerCallbackQuery',{'callback_query_id':item['id'],'text':'Chỉ xem lịch sử của bạn trong chat riêng.'})
+            return
+        try:
+            action,value,page=history_action(item['data'])
+        except ValueError:
+            self.call('answerCallbackQuery',{'callback_query_id':item['id'],'text':'Ngày/trang không hợp lệ'})
+            return
+        self.call('answerCallbackQuery',{'callback_query_id':item['id']})
+        if action=='calendar':
+            text,markup=history_calendar(value)
+            self.call('editMessageText',{'chat_id':chat['id'],'message_id':item['message']['message_id'],
+                                        'text':text,'reply_markup':json.dumps(markup)})
+        elif action=='date':
+            self.history_page(db,chat['id'],page,item['message']['message_id'],day=value)
 
     def open_page(self, db, chat_id, page, edit_message_id=None):
         if signal_engine_mode().startswith('intraday-'):
@@ -458,7 +477,9 @@ class Telegram:
                             tf = update["callback_query"].get("data", "").removeprefix("tf:")
                             data = update["callback_query"].get("data", "")
                             valid_page = data.startswith(("hist:", "open:")) and len(data.split(":", 1)[1]) <= 6 and data.split(":", 1)[1].isascii() and data.split(":", 1)[1].isdigit() and 1 <= int(data.split(":", 1)[1]) <= 100000
-                            if data.startswith(("hist:", "open:")) and not valid_page:
+                            if data.startswith(('histdate:','histcal:')) or data=='histnoop':
+                                self.history_filter(db,chat,item)
+                            elif data.startswith(("hist:", "open:")) and not valid_page:
                                 self.call("answerCallbackQuery", {"callback_query_id": item["id"], "text": "Trang không hợp lệ"})
                             elif data.startswith(('why:', 'chart:')):
                                 self.call('answerCallbackQuery', {'callback_query_id':item['id']})
